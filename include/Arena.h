@@ -20,6 +20,10 @@ public:
                 Player *        GetPlayer(orxU32 _u32ID) const;
                 void            MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y);
 
+                void            ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECTOR &_rvDirection);
+
+                orxBOOL         CheckPosition(orxS32 &_rs32X, orxS32 &_rs32Y) const;
+
                 orxVECTOR       vGridSize;
                 orxVECTOR       vTileSize;
 
@@ -41,7 +45,6 @@ private:
 
 
                 orxVECTOR       vOrigin;
-
                 Cell *          poGrid;
 };
 

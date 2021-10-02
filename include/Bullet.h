@@ -14,6 +14,10 @@ class Bullet : public Object
 {
 public:
 
+                void            SetDirection(const orxVECTOR &_rvDirection);
+
+                orxVECTOR       vDirection;
+
 
 protected:
 

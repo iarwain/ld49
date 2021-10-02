@@ -4,6 +4,36 @@
  */
 
 #include "Arena.h"
+#include "Bullet.h"
+
+orxBOOL Arena::CheckPosition(orxS32 &_rs32X, orxS32 &_rs32Y) const
+{
+    orxBOOL bResult = orxTRUE;
+
+    PushConfigSection();
+
+    // Wrap?
+    if(orxConfig_GetBool("WrapAround"))
+    {
+        _rs32X  = (_rs32X + orxF2S(vGridSize.fX)) % orxF2S(vGridSize.fX);
+        _rs32Y  = (_rs32Y + orxF2S(vGridSize.fY)) % orxF2S(vGridSize.fY);
+    }
+    else
+    {
+        orxS32 s32X, s32Y;
+
+        s32X    = orxCLAMP(_rs32X, 0, orxF2S(vGridSize.fX) - 1);
+        s32Y    = orxCLAMP(_rs32Y, 0, orxF2S(vGridSize.fY) - 1);
+        bResult = (s32X != _rs32X) || (s32Y != _rs32Y) ? orxFALSE : orxTRUE;
+        _rs32X  = s32X;
+        _rs32Y  = s32Y;
+    }
+
+    PopConfigSection();
+
+    // Done!
+    return bResult;
+}
 
 orxU32 Arena::RegisterPlayer(Player &_roPlayer)
 {
@@ -37,29 +67,26 @@ Player *Arena::GetPlayer(orxU32 _u32ID) const
 
 void Arena::MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y)
 {
-    orxU32 x, y;
-
-    PushConfigSection();
-
-    // Wrap?
-    if(orxConfig_GetBool("WrapAround"))
-    {
-        x = (_s32X + orxF2S(vGridSize.fX)) % orxF2S(vGridSize.fX);
-        y = (_s32Y + orxF2S(vGridSize.fY)) % orxF2S(vGridSize.fY);
-    }
-    else
-    {
-        x = orxCLAMP(_s32X, 0, orxF2S(vGridSize.fX) - 1);
-        y = orxCLAMP(_s32Y, 0, orxF2S(vGridSize.fY) - 1);
-    }
-
     // Update player
     Player* poPlayer = GetPlayer(_u32ID);
-    orxObject_SetParent(poPlayer->GetOrxObject(), poGrid[x + y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
-    poPlayer->s32X = x;
-    poPlayer->s32Y = y;
+    CheckPosition(_s32X, _s32Y);
+    orxObject_SetParent(poPlayer->GetOrxObject(), poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
+    poPlayer->s32X = _s32X;
+    poPlayer->s32Y = _s32Y;
+}
 
-    PopConfigSection();
+void Arena::ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECTOR &_rvDirection)
+{
+    ld49 &roGame = ld49::GetInstance();
+
+    if(CheckPosition(_s32X, _s32Y))
+    {
+        orxConfig_PushSection("Bullet");
+        orxConfig_SetVector("Direction", &_rvDirection);
+        orxConfig_PopSection();
+        Bullet *poBullet = roGame.CreateObject<Bullet>("Bullet");
+        orxObject_SetParent(poBullet->GetOrxObject(), poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
+    }
 }
 
 void Arena::OnCreate()
