@@ -39,15 +39,27 @@ void Arena::MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y)
 {
     orxU32 x, y;
 
-    // Wrap
-    x = (_s32X + orxF2S(vGridSize.fX)) % orxF2S(vGridSize.fX);
-    y = (_s32Y + orxF2S(vGridSize.fY)) % orxF2S(vGridSize.fY);
+    PushConfigSection();
+
+    // Wrap?
+    if(orxConfig_GetBool("WrapAround"))
+    {
+        x = (_s32X + orxF2S(vGridSize.fX)) % orxF2S(vGridSize.fX);
+        y = (_s32Y + orxF2S(vGridSize.fY)) % orxF2S(vGridSize.fY);
+    }
+    else
+    {
+        x = orxCLAMP(_s32X, 0, orxF2S(vGridSize.fX) - 1);
+        y = orxCLAMP(_s32Y, 0, orxF2S(vGridSize.fY) - 1);
+    }
 
     // Update player
     Player* poPlayer = GetPlayer(_u32ID);
     orxObject_SetParent(poPlayer->GetOrxObject(), poGrid[x + y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
     poPlayer->s32X = x;
     poPlayer->s32Y = y;
+
+    PopConfigSection();
 }
 
 void Arena::OnCreate()
@@ -56,6 +68,7 @@ void Arena::OnCreate()
 
     // Init variables
     orxConfig_SetBool("IsArena", orxTRUE);
+    orxConfig_SetBool("WrapAround", orxTRUE); // For grid size-independent initial placement of players
     orxConfig_ClearValue("PlayerList");
 
     // Init game
@@ -98,4 +111,10 @@ void Arena::OnDelete()
 
 void Arena::Update(const orxCLOCK_INFO &_rstInfo)
 {
+    PushConfigSection();
+
+    // Update wrap around
+    orxConfig_SetString("WrapAround", "@Game");
+
+    PopConfigSection();
 }

@@ -33,19 +33,25 @@ void Player::OnDelete()
 
 void Player::Update(const orxCLOCK_INFO &_rstInfo)
 {
+    ld49 &roGame = ld49::GetInstance();
+
     // Push config section
     PushConfigSection();
 
     if(!orxConfig_GetBool("IsGameOver"))
     {
+        // Select input set
+        const orxSTRING zSet = orxInput_GetCurrentSet();
+        orxInput_SelectSet(orxConfig_GetString("Input"));
+
+        // Move
         const orxSTRING azMoveList[4] =
         {
             "MoveRight", "MoveLeft", "MoveDown", "MoveUp"
         };
-
-        // Select input set
-        const orxSTRING zSet = orxInput_GetCurrentSet();
-        orxInput_SelectSet(orxConfig_GetString("Input"));
+        orxVECTOR vMove = {(orxInput_HasBeenActivated("MoveRight") ? orxFLOAT_1 : orxFLOAT_0) - (orxInput_HasBeenActivated("MoveLeft") ? orxFLOAT_1 : orxFLOAT_0), (orxInput_HasBeenActivated("MoveDown") ? orxFLOAT_1 : orxFLOAT_0) - (orxInput_HasBeenActivated("MoveUp") ? orxFLOAT_1 : orxFLOAT_0), orxFLOAT_0};
+        Arena *poArena = roGame.GetNextObject<Arena>();
+        poArena->MovePlayer(u32ID, s32X + orxF2S(vMove.fX), s32Y + orxF2S(vMove.fY));
 
         //! TODO: Logic goes here
 
