@@ -27,7 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6336CF51-8769-2345-B360-7ABD731E1F47}</ProjectGuid>
+    <ProjectGuid>{300AA7E4-38F8-F944-8A6E-47F9C02D701D}</ProjectGuid>
     <RootNamespace>ld49</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
@@ -365,18 +365,27 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\include\Arena.h" />
+    <ClInclude Include="..\..\..\include\Bullet.h" />
     <ClInclude Include="..\..\..\include\ld49.h" />
     <ClInclude Include="..\..\..\include\Object.h" />
     <ClInclude Include="..\..\..\include\orxArchive.h" />
+    <ClInclude Include="..\..\..\include\Player.h" />
     <ClInclude Include="..\..\..\include\Scroll\Scroll.h" />
     <ClInclude Include="..\..\..\include\Scroll\ScrollBase.h" />
     <ClInclude Include="..\..\..\include\Scroll\ScrollEd.h" />
     <ClInclude Include="..\..\..\include\Scroll\ScrollObject.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\Arena.cpp">
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Bullet.cpp">
+    </ClCompile>
     <ClCompile Include="..\..\..\src\ld49.cpp">
     </ClCompile>
     <ClCompile Include="..\..\..\src\Object.cpp">
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Player.cpp">
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -385,10 +394,15 @@
     <None Include="..\..\..\include\Scroll\ScrollEd.inl" />
     <None Include="..\..\..\include\Scroll\ScrollObject.inl" />
     <None Include="..\..\..\data\config\CreationTemplate.ini" />
+    <None Include="..\..\..\data\config\dev.ini" />
     <None Include="..\..\..\data\config\ld49.ini" />
     <None Include="..\..\..\data\config\ld49d.ini" />
     <None Include="..\..\..\data\config\ld49p.ini" />
     <None Include="..\..\..\data\config\SettingsTemplate.ini" />
+    <None Include="..\..\..\data\config\title.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\data\resource\ld49.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
