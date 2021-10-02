@@ -6,7 +6,7 @@
 #ifndef __ARENA_H__
 #define __ARENA_H__
 
-#include "Object.h"
+#include "Player.h"
 
 
 /** Arena Class
@@ -14,6 +14,9 @@
 class Arena : public Object
 {
 public:
+
+                orxU32          RegisterPlayer(Player &_roPlayer);
+                Player *        GetPlayer(orxU32 _u32ID) const;
 
 
 protected:

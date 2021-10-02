@@ -7,7 +7,6 @@
 #define __PLAYER_H__
 
 #include "Object.h"
-#include "Arena.h"
 
 /** Player Class
  */
@@ -15,10 +14,8 @@ class Player : public Object
 {
 public:
 
-    const       Arena          *poArena             = {};
-
-                orxU32          u32Score = 0;
-                orxU32          u32Picks = 0;
+                orxU32          u32ID = -1;
+                orxU32          u32X, u32Y;
 
 
 protected:

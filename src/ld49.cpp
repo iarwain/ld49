@@ -112,7 +112,7 @@ orxSTATUS ld49::Bootstrap() const
     orxArchive_Init();
 
     // Add config storage to find the initial config file
-    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "data.zip:config", orxFALSE);
+    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "game.dat:config", orxFALSE);
     orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "../data/config", orxFALSE);
 
     // Return orxSTATUS_FAILURE to prevent orx from loading the default config file

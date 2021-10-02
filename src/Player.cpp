@@ -4,6 +4,7 @@
  */
 
 #include "Player.h"
+#include "Arena.h"
 
 void Player::OnCreate()
 {
@@ -14,7 +15,11 @@ void Player::OnCreate()
 
     // Enable its inputs
     orxInput_EnableSet(orxConfig_GetString("Input"), orxTRUE);
+
+    // Register with arena
+    u32ID = roGame.GetNextObject<Arena>()->RegisterPlayer(*this);
 }
+
 
 void Player::OnDelete()
 {
@@ -35,6 +40,8 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
         // Select input set
         const orxSTRING zSet = orxInput_GetCurrentSet();
         orxInput_SelectSet(orxConfig_GetString("Input"));
+
+        //! TODO: Logic goes here
 
         // Deselect input set
         orxInput_SelectSet(zSet);
