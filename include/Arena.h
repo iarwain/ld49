@@ -16,7 +16,12 @@ class Arena : public Object
 public:
 
                 orxU32          RegisterPlayer(Player &_roPlayer);
+
                 Player *        GetPlayer(orxU32 _u32ID) const;
+                void            MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y);
+
+                orxVECTOR       vGridSize;
+                orxVECTOR       vTileSize;
 
 
 protected:
@@ -27,6 +32,17 @@ protected:
 
 
 private:
+
+    struct Cell
+    {
+        ScrollObject *          poTile;
+        orxU32                  u32ID;
+    };
+
+
+                orxVECTOR       vOrigin;
+
+                Cell *          poGrid;
 };
 
 #endif // __ARENA_H__

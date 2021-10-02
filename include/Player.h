@@ -15,7 +15,7 @@ class Player : public Object
 public:
 
                 orxU32          u32ID = -1;
-                orxU32          u32X, u32Y;
+                orxS32          s32X, s32Y;
 
 
 protected:
