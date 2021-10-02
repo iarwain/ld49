@@ -2,19 +2,25 @@
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
-      <UniqueIdentifier>{DC6E0EB5-1E5F-754C-947B-3792327B5C79}</UniqueIdentifier>
+      <UniqueIdentifier>{DD0CAFCC-3FF8-7A4D-90BA-A277FD76DDDD}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
-      <UniqueIdentifier>{35DCC76A-3324-1745-8674-7D8BCAB3432B}</UniqueIdentifier>
+      <UniqueIdentifier>{5FFB7511-03E1-2847-8FBD-3ABFE7762F0F}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\Scroll">
-      <UniqueIdentifier>{C1235E67-DF4E-F04A-9398-5DC5BADE762C}</UniqueIdentifier>
+      <UniqueIdentifier>{C5F12D73-8A4F-D047-BF2D-64055E15980A}</UniqueIdentifier>
     </Filter>
     <Filter Include="inline">
-      <UniqueIdentifier>{BC97512F-59B6-AF48-AD15-F011B9746684}</UniqueIdentifier>
+      <UniqueIdentifier>{BC37D4BA-4560-9F44-A470-312BBE2920F7}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{099797AE-950D-994A-B4B9-44A32A6077A3}</UniqueIdentifier>
+      <UniqueIdentifier>{9F9B52B0-C09E-C640-88A2-95C7CF87DF47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{9C323BDD-53F3-C34F-BB56-890A0EC6B44C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\resource">
+      <UniqueIdentifier>{B00D1314-8CC8-134E-9A31-8D5F5E7AA827}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +39,9 @@
     <None Include="..\..\..\data\config\CreationTemplate.ini">
       <Filter>config</Filter>
     </None>
+    <None Include="..\..\..\data\config\dev.ini">
+      <Filter>config</Filter>
+    </None>
     <None Include="..\..\..\data\config\ld49.ini">
       <Filter>config</Filter>
     </None>
@@ -45,8 +54,17 @@
     <None Include="..\..\..\data\config\SettingsTemplate.ini">
       <Filter>config</Filter>
     </None>
+    <None Include="..\..\..\data\config\title.ini">
+      <Filter>config</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\include\Arena.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Bullet.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\include\ld49.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -54,6 +72,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\orxArchive.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Player.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Scroll\Scroll.h">
@@ -70,11 +91,25 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\Arena.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Bullet.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\ld49.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\Object.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\Player.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\data\resource\ld49.rc">
+      <Filter>data\resource</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
