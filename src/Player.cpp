@@ -11,10 +11,12 @@ void Player::Die()
     if(!bDead)
     {
         Object::Die();
-        bDead = orxTRUE;
+        bDead   = orxTRUE;
+        fEnergy = fMaxEnergy;
+        SetAnim("Dead");
         orxCOLOR stColor;
         GetColor(stColor);
-        stColor.fAlpha *= 0.3f;
+        stColor.fAlpha *= 0.75f;
         SetColor(stColor);
     }
 }
