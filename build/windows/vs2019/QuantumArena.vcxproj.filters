@@ -2,25 +2,25 @@
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
-      <UniqueIdentifier>{DD0CAFCC-3FF8-7A4D-90BA-A277FD76DDDD}</UniqueIdentifier>
+      <UniqueIdentifier>{63364E96-26C1-A64F-9C33-2B3B62F5D9DF}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
-      <UniqueIdentifier>{5FFB7511-03E1-2847-8FBD-3ABFE7762F0F}</UniqueIdentifier>
+      <UniqueIdentifier>{1C9E979B-D60F-1B41-A045-6CDE0BA908F6}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\Scroll">
-      <UniqueIdentifier>{C5F12D73-8A4F-D047-BF2D-64055E15980A}</UniqueIdentifier>
+      <UniqueIdentifier>{5596ADAD-94AB-5E43-8B26-16FD187885B0}</UniqueIdentifier>
     </Filter>
     <Filter Include="inline">
-      <UniqueIdentifier>{BC37D4BA-4560-9F44-A470-312BBE2920F7}</UniqueIdentifier>
+      <UniqueIdentifier>{DA4BF0EA-87E9-FE4D-BD2C-55D67608FB6B}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{9F9B52B0-C09E-C640-88A2-95C7CF87DF47}</UniqueIdentifier>
+      <UniqueIdentifier>{8ABC621A-B612-0F40-AC4A-0F91F1E5A405}</UniqueIdentifier>
     </Filter>
     <Filter Include="data">
-      <UniqueIdentifier>{9C323BDD-53F3-C34F-BB56-890A0EC6B44C}</UniqueIdentifier>
+      <UniqueIdentifier>{31F88D0A-0D29-A948-9795-CEC9D40B6657}</UniqueIdentifier>
     </Filter>
     <Filter Include="data\resource">
-      <UniqueIdentifier>{B00D1314-8CC8-134E-9A31-8D5F5E7AA827}</UniqueIdentifier>
+      <UniqueIdentifier>{7AE4CEBB-58BB-F94F-86C2-16A226A021CE}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,10 +36,22 @@
     <None Include="..\..\..\include\Scroll\ScrollObject.inl">
       <Filter>inline</Filter>
     </None>
+    <None Include="..\..\..\data\config\arena.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\bullet.ini">
+      <Filter>config</Filter>
+    </None>
     <None Include="..\..\..\data\config\CreationTemplate.ini">
       <Filter>config</Filter>
     </None>
     <None Include="..\..\..\data\config\dev.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\font.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\gameover.ini">
       <Filter>config</Filter>
     </None>
     <None Include="..\..\..\data\config\ld49.ini">
@@ -51,7 +63,16 @@
     <None Include="..\..\..\data\config\ld49p.ini">
       <Filter>config</Filter>
     </None>
+    <None Include="..\..\..\data\config\player.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\select.ini">
+      <Filter>config</Filter>
+    </None>
     <None Include="..\..\..\data\config\SettingsTemplate.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\sound.ini">
       <Filter>config</Filter>
     </None>
     <None Include="..\..\..\data\config\title.ini">

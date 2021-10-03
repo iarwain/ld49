@@ -21,12 +21,12 @@ BEGIN
     BLOCK "040904E4"
     BEGIN
       VALUE "CompanyName", "Team NoFun"
-      VALUE "FileDescription", "LD49"
+      VALUE "FileDescription", "Quantum Arena"
       VALUE "FileVersion", "1.0"
-      VALUE "InternalName", "LD49"
+      VALUE "InternalName", "QuantumArena"
       VALUE "LegalCopyright", "Team NoFun, Inc."
-      VALUE "OriginalFilename", "ld49.exe"
-      VALUE "ProductName", "LD49"
+      VALUE "OriginalFilename", "QuantumArena.exe"
+      VALUE "ProductName", "Quantum Arena"
       VALUE "ProductVersion", "1.0"
     END
   END
