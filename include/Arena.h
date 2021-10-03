@@ -52,6 +52,7 @@ private:
                 Cell *          poGrid;
                 orxFLOAT        fTickTime;
                 orxU32          u32TickCount;
+                orxBOOL         bIsAttract;
 };
 
 #endif // __ARENA_H__

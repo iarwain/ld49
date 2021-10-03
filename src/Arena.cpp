@@ -159,6 +159,7 @@ void Arena::OnCreate()
     u32TickSize     = orxConfig_GetU32("TickSize");
     u32TickCount    = 0;
     bIsGameOver     = orxFALSE;
+    bIsAttract      = orxConfig_GetBool("IsAttract");
 
     // Init game
     orxConfig_PushSection("Game");
@@ -168,14 +169,14 @@ void Arena::OnCreate()
 
     // Init music
     orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
-    if(pstMusic && !orxConfig_GetBool("IsAttract"))
+    if(pstMusic && !bIsAttract)
     {
         orxObject_SetLifeTime(pstMusic, orxFLOAT_0);
-        roGame.CreateObject("GameMusic");
+        orxObject_CreateFromConfig("GameMusic");
     }
-    else if(!pstMusic && orxConfig_GetBool("IsAttract"))
+    else if(!pstMusic && bIsAttract)
     {
-        roGame.CreateObject("MenuMusic");
+        orxObject_CreateFromConfig("MenuMusic");
     }
 
     // Init Grid
@@ -209,6 +210,20 @@ void Arena::OnCreate()
 
 void Arena::OnDelete()
 {
+    if(!bIsAttract)
+    {
+        orxConfig_PushSection("Game");
+        orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
+        if(pstMusic)
+        {
+            orxObject_SetLifeTime(pstMusic, orxFLOAT_0);
+            orxConfig_PushSection("Game");
+            orxConfig_SetU64("Music", 0);
+            orxConfig_PopSection();
+        }
+        orxConfig_PopSection();
+    }
+
     orxMemory_Free(poGrid);
 }
 
@@ -284,7 +299,7 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
         }
 
         // Not attract?
-        if(!orxConfig_GetBool("IsAttract"))
+        if(!bIsAttract)
         {
             // For all players
             orxU32 u32AliveCount = 0;
