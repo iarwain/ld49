@@ -27,6 +27,8 @@ protected:
                 void            OnDelete();
                 void            Update(const orxCLOCK_INFO &_Info);
 
+                orxBOOL         OnShader(orxSHADER_EVENT_PAYLOAD &_rstPayload);
+
 
 private:
 
