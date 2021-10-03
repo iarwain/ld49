@@ -89,11 +89,11 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
 
             // Attack
             orxVECTOR vDirection;
-            orxBOOL bUnstable       = orxConfig_GetBool("Unstable");
-            orxFLOAT fAttack        = ((bUnstable && (fEnergy < orxFLOAT_1) && (fEnergy >= -fMaxEnergy + orxFLOAT_1))
-                                    && (orxInput_HasBeenActivated("AttackLeft") || orxInput_HasBeenActivated("AttackRight") || orxInput_HasBeenActivated("AttackUp") || orxInput_HasBeenActivated("AttackDown")))
-                                      ? orxMath_GetRandomFloat(orxFLOAT_0, orxFLOAT_1)
-                                      : 2.0f;
+            orxBOOL   bUnstable = orxConfig_GetBool("Unstable");
+            orxFLOAT  fAttack   = ((bUnstable && (fEnergy < orxFLOAT_1) && (fEnergy >= -fMaxEnergy + orxFLOAT_1))
+                                && (orxInput_HasBeenActivated("AttackLeft") || orxInput_HasBeenActivated("AttackRight") || orxInput_HasBeenActivated("AttackUp") || orxInput_HasBeenActivated("AttackDown")))
+                                  ? orxMath_GetRandomFloat(orxFLOAT_0, orxFLOAT_1)
+                                  : 2.0f;
             if(((fEnergy >= orxFLOAT_1) && orxInput_HasBeenActivated("AttackLeft")) || (fAttack <= 0.25f))
             {
                 poArena->ShootBullet(u32ID, s32X - 1, s32Y - 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 3, &vDirection));
