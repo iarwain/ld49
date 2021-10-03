@@ -55,6 +55,7 @@ void Player::OnCreate()
     bDead       = orxFALSE;
     fEnergy     = fMaxEnergy = orxConfig_GetFloat("Energy");
     fEnergyRate = orxConfig_GetFloat("EnergyRate");
+    IncreaseEnergy();
 
     // Register with arena
     Arena *poArena = roGame.GetObject<Arena>(orxConfig_GetU64("Arena"));
