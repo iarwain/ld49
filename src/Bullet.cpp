@@ -11,6 +11,7 @@ void Bullet::Die()
     {
         Object::Die();
         SetLifeTime(orxFLOAT_0);
+        orxObject_SetParent(orxObject_CreateFromConfig("Explosion"), orxObject_GetParent(GetOrxObject()));
     }
 }
 

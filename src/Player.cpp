@@ -10,19 +10,15 @@ void Player::Die()
 {
     if(!bDead)
     {
-        PushConfigSection();
-        if(!orxConfig_GetBool("IsAttract"))
-        {
-            Object::Die();
-            bDead   = orxTRUE;
-            fEnergy = fMaxEnergy;
-            SetAnim("Dead");
-            orxCOLOR stColor;
-            GetColor(stColor);
-            stColor.fAlpha *= 0.75f;
-            SetColor(stColor);
-        }
-        PopConfigSection();
+        Object::Die();
+        bDead   = orxTRUE;
+        fEnergy = fMaxEnergy;
+        IncreaseEnergy();
+        SetAnim("Dead");
+        orxCOLOR stColor;
+        GetColor(stColor);
+        stColor.fAlpha *= 0.75f;
+        SetColor(stColor);
     }
 }
 
