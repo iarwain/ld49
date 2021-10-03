@@ -263,22 +263,33 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
 
         // For all players
         orxU32 u32AliveCount = 0;
-        Player *poAlive = orxNULL;
+        Player *poWinner = orxNULL;
         for(orxS32 i = 0, iCount = orxConfig_GetListCount("PlayerList"); i < iCount; i++)
         {
             Player *poPlayer = ld49::GetInstance().GetObject<Player>(orxConfig_GetListU64("PlayerList", i));
             if(!poPlayer->bDead)
             {
                 u32AliveCount++;
-                poAlive = poPlayer;
+                poWinner = poPlayer;
             }
         }
         if(((u32AliveCount == 1) && (orxConfig_GetListCount("PlayerList") > 1))
         || (u32AliveCount == 0))
         {
+            orxCHAR acName[64];
             bIsGameOver = orxTRUE;
-            orxConfig_SetU64("Alive", poAlive ? poAlive->GetGUID() : 0);
+            orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetModelName() : "NO ONE");
+            orxConfig_SetString("Winner", acName);
+            orxString_UpperCase(acName);
+            orxConfig_SetString("WINNER", acName);
             roGame.CreateObject("GameOver");
+        }
+    }
+    else
+    {
+        if(orxInput_HasBeenActivated("Restart"))
+        {
+            orxInput_SetValue("Reset", orxFLOAT_1);
         }
     }
 
