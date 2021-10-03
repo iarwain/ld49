@@ -119,6 +119,27 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
             fEnergy -= orxFLOAT_1;
         }
 
+        if(fEnergy == fMaxEnergy)
+        {
+            SetAnim("100%");
+        }
+        else if(fEnergy >= 0.5f * fMaxEnergy)
+        {
+            SetAnim("75%");
+        }
+        else if (fEnergy >= orxFLOAT_0)
+        {
+            SetAnim("50%");
+        }
+        else if (fEnergy >= -0.5f * fMaxEnergy)
+        {
+            SetAnim("25%");
+        }
+        else
+        {
+            SetAnim("0%");
+        }
+
         // Deselect input set
         orxInput_SelectSet(zSet);
 
