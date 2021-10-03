@@ -119,6 +119,7 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
             fEnergy -= orxFLOAT_1;
         }
 
+        // Set anim (energy indicator)
         if(fEnergy == fMaxEnergy)
         {
             SetAnim("100%");
@@ -146,4 +147,13 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
         // Pop config section
         PopConfigSection();
     }
+}
+
+orxBOOL Player::OnShader(orxSHADER_EVENT_PAYLOAD &_rstPayload)
+{
+    if(!orxString_Compare(_rstPayload.zParamName, "unstable"))
+    {
+        _rstPayload.fValue = (fEnergy < orxFLOAT_1) ? orxFLOAT_1 : orxFLOAT_0;
+    }
+    return orxTRUE;
 }
