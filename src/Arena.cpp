@@ -89,11 +89,13 @@ orxBOOL Arena::MoveBullet(Bullet &_roBullet)
 
     if(!_roBullet.bDead)
     {
-        orxS32  s32X, s32Y;
+        orxS32 s32X, s32Y, s32OldX, s32OldY;
 
         orxASSERT(poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count > 0);
         poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count--;
 
+        s32OldX = _roBullet.s32X;
+        s32OldY = _roBullet.s32Y;
         s32X = _roBullet.s32X = _roBullet.s32X + orxF2S(_roBullet.vDirection.fX);
         s32Y = _roBullet.s32Y = _roBullet.s32Y + orxF2S(_roBullet.vDirection.fY);
 
@@ -109,6 +111,8 @@ orxBOOL Arena::MoveBullet(Bullet &_roBullet)
             vDirection.fY = (s32Y < 0) ? orxFLOAT_1 : (s32Y == orxF2S(vGridSize.fY)) ? -orxFLOAT_1 : _roBullet.vDirection.fY;
             vDirection.fZ = orxFLOAT_0;
             _roBullet.SetDirection(vDirection);
+            _roBullet.s32X = s32OldX;
+            _roBullet.s32Y = s32OldY;
         }
 
         poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count++;
@@ -147,8 +151,9 @@ void Arena::OnCreate()
     orxConfig_SetBool("IsArena", orxTRUE);
     orxConfig_SetBool("WrapAround", orxTRUE); // For grid size-independent initial placement of players
     orxConfig_ClearValue("PlayerList");
-    u32TickCount    = 0;
+    fTickTime       = orxConfig_GetFloat("TickTime");
     u32TickSize     = orxConfig_GetU32("TickSize");
+    u32TickCount    = 0;
 
     // Init game
     orxConfig_PushSection("Game");
@@ -194,11 +199,12 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
 
     PushConfigSection();
 
-    // Update wrap around
+    // Update status
     orxConfig_SetString("WrapAround", "@Game");
+    fTickTime -= _rstInfo.fDT;
 
     // Should tick?
-    if(u32TickCount >= u32TickSize)
+    if((fTickTime <= orxFLOAT_0) || (u32TickCount >= u32TickSize))
     {
         // Update bullets (can't use GetNextObject<Bullet> as it triggers a compiler bug in a different part of the code (!) with MSVS2019)
         for(ScrollObject *poObject = roGame.GetNextObject();
@@ -230,7 +236,8 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
             poPlayer->IncreaseEnergy();
         }
 
-        u32TickCount -= u32TickSize;
+        u32TickCount    = 0;
+        fTickTime       = orxConfig_GetFloat("TickTime");
     }
 
     // For all cells

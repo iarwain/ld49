@@ -30,7 +30,7 @@ protected:
 
 private:
 
-                orxU32          u32Energy, u32MaxEnergy;
+                orxFLOAT        fEnergy, fMaxEnergy, fEnergyRate;
 };
 
 #endif // __PLAYER_H__
