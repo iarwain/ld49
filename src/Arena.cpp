@@ -59,7 +59,7 @@ Player *Arena::GetPlayer(orxU32 _u32ID) const
 {
     PushConfigSection();
 
-    auto poResult = ld49::GetInstance().GetObject<Player>(orxConfig_GetListU64("PlayerList", _u32ID - 1));
+    auto poResult = ld49::GetInstance().GetObject<Player>((_u32ID != orxU32_UNDEFINED) ? orxConfig_GetListU64("PlayerList", _u32ID - 1) : orxConfig_GetU64("PlayerList"));
 
     PopConfigSection();
 
@@ -255,7 +255,11 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
                     pstObject;
                     pstObject = orxObject_GetSibling(pstObject))
                 {
-                    ((Object *)orxObject_GetUserData(pstObject))->Die();
+                    Object *poObject = (Object *)orxObject_GetUserData(pstObject);
+                    if(poObject)
+                    {
+                        poObject->Die();
+                    }
                 }
                 roCell.u32Count = 0;
             }

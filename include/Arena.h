@@ -18,7 +18,7 @@ public:
 
                 orxU32          RegisterPlayer(Player &_roPlayer, orxS32 _s32X, orxS32 _s32Y);
 
-                Player *        GetPlayer(orxU32 _u32ID) const;
+                Player *        GetPlayer(orxU32 _u32ID = orxU32_UNDEFINED) const;
                 void            MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y);
 
                 void            ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECTOR &_rvDirection);

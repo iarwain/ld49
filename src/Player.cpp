@@ -42,9 +42,6 @@ void Player::OnCreate()
     fEnergy     = fMaxEnergy = orxConfig_GetFloat("Energy");
     fEnergyRate = orxConfig_GetFloat("EnergyRate");
 
-    // Enable its inputs
-    orxInput_EnableSet(orxConfig_GetString("Input"), orxTRUE);
-
     // Register with arena
     orxVECTOR vPos;
     orxConfig_GetVector("InitPos", &vPos);
@@ -94,32 +91,43 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
                                 && (orxInput_HasBeenActivated("AttackLeft") || orxInput_HasBeenActivated("AttackRight") || orxInput_HasBeenActivated("AttackUp") || orxInput_HasBeenActivated("AttackDown")))
                                   ? orxMath_GetRandomFloat(orxFLOAT_0, orxFLOAT_1)
                                   : 2.0f;
+            orxS32 s32BulletX = s32X, s32BulletY = s32Y, s32Distance = 1;
+            if(fAttack <= orxFLOAT_1)
+            {
+                Player *poPlayer    = poArena->GetPlayer();
+                s32BulletX          = poPlayer->s32X;
+                s32BulletY          = poPlayer->s32Y;
+                if(poPlayer != this)
+                {
+                    s32Distance = orxMath_GetRandomS32(2, 3);
+                }
+            }
             if(((fEnergy >= orxFLOAT_1) && orxInput_HasBeenActivated("AttackLeft")) || (fAttack <= 0.25f))
             {
-                poArena->ShootBullet(u32ID, s32X - 1, s32Y - 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 3, &vDirection));
-                poArena->ShootBullet(u32ID, s32X - 1, s32Y, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 4, &vDirection));
-                poArena->ShootBullet(u32ID, s32X - 1, s32Y + 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 5, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX - s32Distance, s32BulletY - s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 3, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX - s32Distance, s32BulletY, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 4, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX - s32Distance, s32BulletY + s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 5, &vDirection));
                 fEnergy -= orxFLOAT_1;
             }
             else if(((fEnergy >= orxFLOAT_1) && orxInput_HasBeenActivated("AttackRight")) || (fAttack <= 0.5f))
             {
-                poArena->ShootBullet(u32ID, s32X + 1, s32Y - 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 1, &vDirection));
-                poArena->ShootBullet(u32ID, s32X + 1, s32Y, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 0, &vDirection));
-                poArena->ShootBullet(u32ID, s32X + 1, s32Y + 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 7, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX + s32Distance, s32BulletY - s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 1, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX + s32Distance, s32BulletY, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 0, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX + s32Distance, s32BulletY + s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 7, &vDirection));
                 fEnergy -= orxFLOAT_1;
             }
             else if(((fEnergy >= orxFLOAT_1) && orxInput_HasBeenActivated("AttackUp")) || (fAttack <= 0.75f))
             {
-                poArena->ShootBullet(u32ID, s32X - 1, s32Y - 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 3, &vDirection));
-                poArena->ShootBullet(u32ID, s32X, s32Y - 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 2, &vDirection));
-                poArena->ShootBullet(u32ID, s32X + 1, s32Y - 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 1, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX - s32Distance, s32BulletY - s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 3, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX, s32BulletY - s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 2, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX + s32Distance, s32BulletY - s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 1, &vDirection));
                 fEnergy -= orxFLOAT_1;
             }
             else if(((fEnergy >= orxFLOAT_1) && orxInput_HasBeenActivated("AttackDown")) || (fAttack <= 1.0f))
             {
-                poArena->ShootBullet(u32ID, s32X - 1, s32Y + 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 5, &vDirection));
-                poArena->ShootBullet(u32ID, s32X, s32Y + 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 6, &vDirection));
-                poArena->ShootBullet(u32ID, s32X + 1, s32Y + 1, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 7, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX - s32Distance, s32BulletY + s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 5, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX, s32BulletY + s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 6, &vDirection));
+                poArena->ShootBullet(u32ID, s32BulletX + s32Distance, s32BulletY + s32Distance, (fEnergy < orxFLOAT_1) ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 7, &vDirection));
                 fEnergy -= orxFLOAT_1;
             }
 
