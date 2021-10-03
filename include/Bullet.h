@@ -14,11 +14,14 @@ class Bullet : public Object
 {
 public:
 
+                void            Die();
+
                 void            SetDirection(const orxVECTOR &_rvDirection);
 
                 orxVECTOR       vDirection;
                 orxU32          u32ID;
                 orxS32          s32X, s32Y;
+                orxBOOL         bActive;
 
 
 protected:

@@ -49,6 +49,7 @@ orxU32 Arena::RegisterPlayer(Player &_roPlayer, orxS32 _s32X, orxS32 _s32Y)
     orxObject_SetParent(_roPlayer.GetOrxObject(), GetOrxObject());
     MovePlayer(u32Result, _s32X, _s32Y);
     u32TickCount = 0;
+    bCheck = orxFALSE;
 
     PopConfigSection();
 
@@ -70,11 +71,18 @@ void Arena::MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y)
 {
     // Update player
     Player* poPlayer = GetPlayer(_u32ID);
+    if((poPlayer->s32X >= 0) && (poPlayer->s32Y >= 0))
+    {
+        orxASSERT(poGrid[poPlayer->s32X + poPlayer->s32Y * orxF2U(vGridSize.fX)].u32Count > 0);
+        poGrid[poPlayer->s32X + poPlayer->s32Y * orxF2U(vGridSize.fX)].u32Count--;
+    }
     CheckPosition(_s32X, _s32Y);
     orxObject_SetParent(poPlayer->GetOrxObject(), poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
+    poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)].u32Count++;
     poPlayer->s32X = _s32X;
     poPlayer->s32Y = _s32Y;
     u32TickCount++;
+    bCheck = orxTRUE;
 }
 
 orxBOOL Arena::MoveBullet(Bullet &_roBullet)
@@ -82,7 +90,8 @@ orxBOOL Arena::MoveBullet(Bullet &_roBullet)
     orxBOOL bResult = orxTRUE;
     orxS32  s32X, s32Y;
 
-    poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32ID = 0;
+    orxASSERT(poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count > 0);
+    poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count--;
 
     s32X = _roBullet.s32X = _roBullet.s32X + orxF2S(_roBullet.vDirection.fX);
     s32Y = _roBullet.s32Y = _roBullet.s32Y + orxF2S(_roBullet.vDirection.fY);
@@ -91,7 +100,6 @@ orxBOOL Arena::MoveBullet(Bullet &_roBullet)
     if(CheckPosition(_roBullet.s32X, _roBullet.s32Y))
     {
         orxObject_SetParent(_roBullet.GetOrxObject(), poGrid[s32X + s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
-        poGrid[s32X + s32Y * orxF2U(vGridSize.fX)].u32ID = _roBullet.u32ID;
     }
     else
     {
@@ -101,6 +109,8 @@ orxBOOL Arena::MoveBullet(Bullet &_roBullet)
         vDirection.fZ = orxFLOAT_0;
         _roBullet.SetDirection(vDirection);
     }
+
+    poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count++;
 
     // Done!
     return bResult;
@@ -112,17 +122,18 @@ void Arena::ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECT
 
     if(CheckPosition(_s32X, _s32Y))
     {
+        Cell &roCell = poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)];
         orxConfig_PushSection("Bullet");
         orxConfig_SetVector("Direction", &_rvDirection);
         orxConfig_PopSection();
         Bullet *poBullet = roGame.CreateObject<Bullet>("Bullet");
-        Cell &roCell = poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)];
         orxObject_SetParent(poBullet->GetOrxObject(), roCell.poTile->GetOrxObject());
-        poBullet->u32ID = roCell.u32ID = _u32ID;
+        roCell.u32Count++;
+        poBullet->u32ID = _u32ID;
         poBullet->s32X = _s32X;
         poBullet->s32Y = _s32Y;
         orxCOLOR stColor;
-        poBullet->SetColor(GetPlayer(_u32ID)->GetColor(stColor));
+        poBullet->SetColor(GetPlayer(_u32ID)->GetColor(stColor), orxFALSE);
     }
 }
 
@@ -160,7 +171,7 @@ void Arena::OnCreate()
         {
             Cell *poCell    = poGrid + (i + (j * orxF2U(vGridSize.fX)));
             poCell->poTile  = roGame.CreateObject("Tile");
-            poCell->u32ID   = 0;
+            poCell->u32Count= 0;
             orxObject_SetParent(poCell->poTile->GetOrxObject(), GetOrxObject());
             poCell->poTile->SetPosition(vPos);
             vPos.fX        += vTileSize.fX;
@@ -195,17 +206,44 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
             poObject->PushConfigSection();
             if(orxConfig_GetBool("IsBullet"))
             {
-                if(!MoveBullet(*ScrollCast<Bullet *>(poObject)))
+                Bullet *poBullet = ScrollCast<Bullet *>(poObject);
+                if(poBullet->bActive)
                 {
-                    poObject->SetLifeTime(orxFLOAT_0);
+                    MoveBullet(*poBullet);
+                }
+                else
+                {
+                    orxCOLOR stColor;
+                    poBullet->bActive = orxTRUE;
+                    poBullet->SetColor(poBullet->GetColor(stColor));
                 }
             }
             poObject->PopConfigSection();
         }
 
-        //! TODO: Check collisions
-
         u32TickCount -= u32TickSize;
+    }
+
+    if(bCheck)
+    {
+        // For all cells
+        for(orxU32 i = 0, iCount = orxF2U(vGridSize.fX) * orxF2U(vGridSize.fY); i < iCount; i++)
+        {
+            // Collision?
+            Cell& roCell = poGrid[i];
+            if(roCell.u32Count > 1)
+            {
+                // For all children
+                for(orxOBJECT *pstObject = orxObject_GetChild(roCell.poTile->GetOrxObject());
+                    pstObject;
+                    pstObject = orxObject_GetSibling(pstObject))
+                {
+                    ((Object *)orxObject_GetUserData(pstObject))->Die();
+                }
+                roCell.u32Count = 0;
+            }
+        }
+        bCheck = orxFALSE;
     }
 
     PopConfigSection();

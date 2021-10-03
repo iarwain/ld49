@@ -14,6 +14,8 @@ class Player : public Object
 {
 public:
 
+                void            Die();
+
                 orxU32          u32ID;
                 orxS32          s32X, s32Y;
                 orxBOOL         bDead;

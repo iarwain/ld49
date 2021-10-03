@@ -5,6 +5,11 @@
 
 #include "Bullet.h"
 
+void Bullet::Die()
+{
+    SetLifeTime(orxFLOAT_0);
+}
+
 void Bullet::SetDirection(const orxVECTOR &_rvDirection)
 {
     vDirection.fX = (_rvDirection.fX < orxFLOAT_0) ? -orxFLOAT_1 : (_rvDirection.fX > orxFLOAT_0) ? orxFLOAT_1 : orxFLOAT_0;
@@ -18,6 +23,9 @@ void Bullet::OnCreate()
 {
     orxConfig_SetBool("IsBullet", orxTRUE);
     orxConfig_GetVector("Direction", &vDirection);
+    bActive = orxFALSE;
+    u32ID   = orxU32_UNDEFINED;
+    s32X    = s32Y = 0;
 }
 
 void Bullet::OnDelete()

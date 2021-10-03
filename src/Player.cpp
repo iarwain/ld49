@@ -6,16 +6,27 @@
 #include "Player.h"
 #include "Arena.h"
 
+void Player::Die()
+{
+    bDead = orxTRUE;
+    orxCOLOR stColor;
+    GetColor(stColor);
+    // orxColor_FromRGBToHSV(&stColor, &stColor);
+    // stColor.vHSV.fS *= 0.6f;
+    // stColor.vHSV.fV *= 0.3f;
+    // orxColor_FromHSVToRGB(&stColor, &stColor);
+    stColor.fAlpha *= 0.3f;
+    SetColor(stColor);
+}
+
 void Player::OnCreate()
 {
     ld49 &roGame = ld49::GetInstance();
 
     // Init variables
-    orxVECTOR vPos;
     orxConfig_SetBool("IsPlayer", orxTRUE);
-    orxConfig_GetVector("InitPos", &vPos);
-    s32X    = orxF2S(vPos.fX);
-    s32Y    = orxF2S(vPos.fY);
+    s32X    = -1;
+    s32Y    = -1;
     u32ID   = orxU32_UNDEFINED;
     bDead   = orxFALSE;
 
@@ -23,10 +34,10 @@ void Player::OnCreate()
     orxInput_EnableSet(orxConfig_GetString("Input"), orxTRUE);
 
     // Register with arena
-    Arena *poArena = roGame.GetNextObject<Arena>();
-    u32ID = poArena->RegisterPlayer(*this, s32X, s32Y);
+    orxVECTOR vPos;
+    orxConfig_GetVector("InitPos", &vPos);
+    u32ID = roGame.GetNextObject<Arena>()->RegisterPlayer(*this, orxF2S(vPos.fX), orxF2S(vPos.fY));
 }
-
 
 void Player::OnDelete()
 {

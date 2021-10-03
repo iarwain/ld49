@@ -98,7 +98,6 @@ void ld49::Exit()
 void ld49::BindObjects()
 {
     // Bind the Object class to the Object config section
-    ScrollBindObject<Object>("Object");
     ScrollBindObject<Bullet>("Bullet");
     ScrollBindObject<Arena>("Arena");
     ScrollBindObject<Player>("Player");

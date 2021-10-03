@@ -12,7 +12,7 @@
 
 /** Arena Class
  */
-class Arena : public Object
+class Arena : public ScrollObject
 {
 public:
 
@@ -43,13 +43,14 @@ private:
     struct Cell
     {
         ScrollObject *          poTile;
-        orxU32                  u32ID;
+        orxU32                  u32Count;
     };
 
 
                 orxVECTOR       vOrigin;
                 Cell *          poGrid;
                 orxU32          u32TickCount;
+                orxBOOL         bCheck;
 };
 
 #endif // __ARENA_H__
