@@ -17,6 +17,8 @@ public:
                 void            SetDirection(const orxVECTOR &_rvDirection);
 
                 orxVECTOR       vDirection;
+                orxU32          u32ID;
+                orxS32          s32X, s32Y;
 
 
 protected:

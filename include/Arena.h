@@ -7,6 +7,7 @@
 #define __ARENA_H__
 
 #include "Player.h"
+#include "Bullet.h"
 
 
 /** Arena Class
@@ -15,12 +16,13 @@ class Arena : public Object
 {
 public:
 
-                orxU32          RegisterPlayer(Player &_roPlayer);
+                orxU32          RegisterPlayer(Player &_roPlayer, orxS32 _s32X, orxS32 _s32Y);
 
                 Player *        GetPlayer(orxU32 _u32ID) const;
                 void            MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y);
 
                 void            ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECTOR &_rvDirection);
+                orxBOOL         MoveBullet(Bullet &_roBullet);
 
                 orxBOOL         CheckPosition(orxS32 &_rs32X, orxS32 &_rs32Y) const;
 
@@ -46,6 +48,7 @@ private:
 
                 orxVECTOR       vOrigin;
                 Cell *          poGrid;
+                orxU32          u32TickCount;
 };
 
 #endif // __ARENA_H__

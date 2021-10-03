@@ -35,7 +35,7 @@ orxBOOL Arena::CheckPosition(orxS32 &_rs32X, orxS32 &_rs32Y) const
     return bResult;
 }
 
-orxU32 Arena::RegisterPlayer(Player &_roPlayer)
+orxU32 Arena::RegisterPlayer(Player &_roPlayer, orxS32 _s32X, orxS32 _s32Y)
 {
     orxU32 u32Result;
 
@@ -46,8 +46,9 @@ orxU32 Arena::RegisterPlayer(Player &_roPlayer)
     orxString_NPrint(acBuffer, sizeof(acBuffer) - 1, "0x%016llX", _roPlayer.GetGUID());
     orxConfig_AppendListString("PlayerList", &zBuffer, 1);
     u32Result = orxConfig_GetListCount("PlayerList");
-
     orxObject_SetParent(_roPlayer.GetOrxObject(), GetOrxObject());
+    MovePlayer(u32Result, _s32X, _s32Y);
+    u32TickCount = 0;
 
     PopConfigSection();
 
@@ -73,6 +74,31 @@ void Arena::MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y)
     orxObject_SetParent(poPlayer->GetOrxObject(), poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
     poPlayer->s32X = _s32X;
     poPlayer->s32Y = _s32Y;
+    u32TickCount++;
+}
+
+orxBOOL Arena::MoveBullet(Bullet &_roBullet)
+{
+    orxBOOL bResult;
+    orxS32  s32X, s32Y;
+
+    poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32ID = 0;
+
+    s32X = _roBullet.s32X + orxF2S(_roBullet.vDirection.fX);
+    s32Y = _roBullet.s32Y + orxF2S(_roBullet.vDirection.fY);
+
+    // Update player
+    if(bResult = CheckPosition(s32X, s32Y))
+    {
+        orxObject_SetParent(_roBullet.GetOrxObject(), poGrid[s32X + s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
+        _roBullet.s32X = s32X;
+        _roBullet.s32Y = s32Y;
+
+        poGrid[s32X + s32Y * orxF2U(vGridSize.fX)].u32ID = _roBullet.u32ID;
+    }
+
+    // Done!
+    return bResult;
 }
 
 void Arena::ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECTOR &_rvDirection)
@@ -85,7 +111,13 @@ void Arena::ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECT
         orxConfig_SetVector("Direction", &_rvDirection);
         orxConfig_PopSection();
         Bullet *poBullet = roGame.CreateObject<Bullet>("Bullet");
-        orxObject_SetParent(poBullet->GetOrxObject(), poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
+        Cell &roCell = poGrid[_s32X + _s32Y * orxF2U(vGridSize.fX)];
+        orxObject_SetParent(poBullet->GetOrxObject(), roCell.poTile->GetOrxObject());
+        poBullet->u32ID = roCell.u32ID = _u32ID;
+        poBullet->s32X = _s32X;
+        poBullet->s32Y = _s32Y;
+        orxCOLOR stColor;
+        poBullet->SetColor(GetPlayer(_u32ID)->GetColor(stColor));
     }
 }
 
@@ -97,6 +129,7 @@ void Arena::OnCreate()
     orxConfig_SetBool("IsArena", orxTRUE);
     orxConfig_SetBool("WrapAround", orxTRUE); // For grid size-independent initial placement of players
     orxConfig_ClearValue("PlayerList");
+    u32TickCount    = 0;
 
     // Init game
     orxConfig_PushSection("Game");
@@ -138,10 +171,41 @@ void Arena::OnDelete()
 
 void Arena::Update(const orxCLOCK_INFO &_rstInfo)
 {
+    ld49 &roGame = ld49::GetInstance();
+
     PushConfigSection();
 
     // Update wrap around
     orxConfig_SetString("WrapAround", "@Game");
+
+    // Should tick?
+    if(u32TickCount)
+    {
+        // Update bullets (can't use GetNextObject<Bullet> as it triggers a compiler bug in a different part of the code (!) with MSVS2019)
+        for(ScrollObject *poObject = roGame.GetNextObject();
+            poObject;
+            poObject = roGame.GetNextObject(poObject))
+        {
+            poObject->PushConfigSection();
+            if(orxConfig_GetBool("IsBullet"))
+            {
+                if(!MoveBullet(*ScrollCast<Bullet *>(poObject)))
+                {
+                    poObject->SetLifeTime(orxFLOAT_0);
+                }
+            }
+            poObject->PopConfigSection();
+        }
+
+        //! TODO: Check collisions
+
+        u32TickCount = 0;
+    }
+
+    if(u32TickCount)
+    {
+        u32TickCount = 0;
+    }
 
     PopConfigSection();
 }
