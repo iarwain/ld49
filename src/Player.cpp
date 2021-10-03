@@ -27,7 +27,7 @@ void Player::IncreaseEnergy()
     if(!bDead)
     {
         PushConfigSection();
-        if(orxConfig_GetBool("Unstable"))
+        if(orxConfig_GetBool("IsUnstable"))
         {
             fEnergy = orxMIN(orxFLOAT_0, fEnergy + fEnergyRate);
         }
