@@ -14,7 +14,7 @@ void Player::Die()
         bDead   = orxTRUE;
         fEnergy = fMaxEnergy;
         IncreaseEnergy();
-        SetAnim("Dead");
+        SetAnim("Die");
         orxCOLOR stColor;
         GetColor(stColor);
         stColor.fAlpha *= 0.75f;
@@ -64,7 +64,6 @@ void Player::OnCreate()
     }
     else
     {
-        Die();
         SetLifeTime(orxFLOAT_0);
     }
 }
