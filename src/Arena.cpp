@@ -154,6 +154,7 @@ void Arena::OnCreate()
     fTickTime       = orxConfig_GetFloat("TickTime");
     u32TickSize     = orxConfig_GetU32("TickSize");
     u32TickCount    = 0;
+    bIsGameOver     = orxFALSE;
 
     // Init game
     orxConfig_PushSection("Game");
@@ -199,62 +200,96 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
 
     PushConfigSection();
 
-    // Update status
-    orxConfig_SetString("WrapAround", "@Game");
-    fTickTime -= _rstInfo.fDT;
-
-    // Should tick?
-    if((fTickTime <= orxFLOAT_0) || (u32TickCount >= u32TickSize))
+    if(!bIsGameOver)
     {
-        // Update bullets (can't use GetNextObject<Bullet> as it triggers a compiler bug in a different part of the code (!) with MSVS2019)
-        for(ScrollObject *poObject = roGame.GetNextObject();
-            poObject;
-            poObject = roGame.GetNextObject(poObject))
+        // Update status
+        orxConfig_SetString("WrapAround", "@Game");
+        fTickTime -= _rstInfo.fDT;
+
+        // Should tick?
+        if((fTickTime <= orxFLOAT_0) || (u32TickCount >= u32TickSize))
         {
-            poObject->PushConfigSection();
-            if(orxConfig_GetBool("IsBullet"))
+            // Update bullets (can't use GetNextObject<Bullet> as it triggers a compiler bug in a different part of the code (!) with MSVS2019)
+            for(ScrollObject *poObject = roGame.GetNextObject();
+                poObject;
+                poObject = roGame.GetNextObject(poObject))
             {
-                Bullet *poBullet = ScrollCast<Bullet *>(poObject);
-                if(poBullet->bActive)
+                poObject->PushConfigSection();
+                if(orxConfig_GetBool("IsBullet"))
                 {
-                    MoveBullet(*poBullet);
+                    Bullet *poBullet = ScrollCast<Bullet *>(poObject);
+                    if(poBullet->bActive)
+                    {
+                        MoveBullet(*poBullet);
+                    }
+                    else
+                    {
+                        orxCOLOR stColor;
+                        poBullet->bActive = orxTRUE;
+                        poBullet->SetColor(poBullet->GetColor(stColor));
+                    }
                 }
-                else
-                {
-                    orxCOLOR stColor;
-                    poBullet->bActive = orxTRUE;
-                    poBullet->SetColor(poBullet->GetColor(stColor));
-                }
+                poObject->PopConfigSection();
             }
-            poObject->PopConfigSection();
+
+            // Replenish all players' energy
+            for(orxS32 i = 0, iCount = orxConfig_GetListCount("PlayerList"); i < iCount; i++)
+            {
+                Player *poPlayer = ld49::GetInstance().GetObject<Player>(orxConfig_GetListU64("PlayerList", i));
+                poPlayer->IncreaseEnergy();
+            }
+
+            u32TickCount    = 0;
+            fTickTime       = orxConfig_GetFloat("TickTime");
         }
 
-        // Replenish all players' energy
+        // For all cells
+        for(orxU32 i = 0, iCount = orxF2U(vGridSize.fX) * orxF2U(vGridSize.fY); i < iCount; i++)
+        {
+            // Collision?
+            Cell& roCell = poGrid[i];
+            if(roCell.u32Count > 1)
+            {
+                // For all children
+                for(orxOBJECT *pstObject = orxObject_GetChild(roCell.poTile->GetOrxObject());
+                    pstObject;
+                    pstObject = orxObject_GetSibling(pstObject))
+                {
+                    ((Object *)orxObject_GetUserData(pstObject))->Die();
+                }
+                roCell.u32Count = 0;
+            }
+        }
+
+        // For all players
+        orxU32 u32AliveCount = 0;
+        Player *poWinner = orxNULL;
         for(orxS32 i = 0, iCount = orxConfig_GetListCount("PlayerList"); i < iCount; i++)
         {
             Player *poPlayer = ld49::GetInstance().GetObject<Player>(orxConfig_GetListU64("PlayerList", i));
-            poPlayer->IncreaseEnergy();
-        }
-
-        u32TickCount    = 0;
-        fTickTime       = orxConfig_GetFloat("TickTime");
-    }
-
-    // For all cells
-    for(orxU32 i = 0, iCount = orxF2U(vGridSize.fX) * orxF2U(vGridSize.fY); i < iCount; i++)
-    {
-        // Collision?
-        Cell& roCell = poGrid[i];
-        if(roCell.u32Count > 1)
-        {
-            // For all children
-            for(orxOBJECT *pstObject = orxObject_GetChild(roCell.poTile->GetOrxObject());
-                pstObject;
-                pstObject = orxObject_GetSibling(pstObject))
+            if(!poPlayer->bDead)
             {
-                ((Object *)orxObject_GetUserData(pstObject))->Die();
+                u32AliveCount++;
+                poWinner = poPlayer;
             }
-            roCell.u32Count = 0;
+        }
+        if(((u32AliveCount == 1) && (orxConfig_GetListCount("PlayerList") > 1))
+        || (u32AliveCount == 0))
+        {
+            orxCHAR acName[64];
+            bIsGameOver = orxTRUE;
+            orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetModelName() : "NO ONE");
+            orxConfig_SetString("Winner", acName);
+            orxString_UpperCase(acName);
+            orxConfig_SetString("WINNER", acName);
+            roGame.CreateObject("GameOver");
+        }
+    }
+    else
+    {
+        if(orxInput_HasBeenActivated("Restart"))
+        {
+            orxInput_SetValue("Reset", orxFLOAT_1);
         }
     }
 
