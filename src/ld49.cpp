@@ -65,11 +65,8 @@ orxSTATUS ld49::Init()
     // Push game section
     orxConfig_PushSection("Game");
 
-    // Create all viewports
-    for(orxS32 i = 0, iCount = orxConfig_GetListCount("ViewportList"); i < iCount; i++)
-    {
-        orxViewport_CreateFromConfig(orxConfig_GetListString("ViewportList", i));
-    }
+    // Disable main viewport
+    orxViewport_Enable(GetMainViewport(), orxFALSE);
 
     // Go to title
     CreateObject("Title");
