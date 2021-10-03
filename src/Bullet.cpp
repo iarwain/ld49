@@ -27,9 +27,10 @@ void Bullet::OnCreate()
 {
     orxConfig_SetBool("IsBullet", orxTRUE);
     orxConfig_GetVector("Direction", &vDirection);
-    bActive = orxFALSE;
-    u32ID   = orxU32_UNDEFINED;
-    s32X    = s32Y = 0;
+    bActive     = orxFALSE;
+    u32ID       = orxU32_UNDEFINED;
+    s32X        = s32Y = 0;
+    u64ArenaID  = 0;
 }
 
 void Bullet::OnDelete()

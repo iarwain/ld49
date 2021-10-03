@@ -47,6 +47,7 @@ orxU32 Arena::RegisterPlayer(Player &_roPlayer, orxS32 _s32X, orxS32 _s32Y)
     orxConfig_AppendListString("PlayerList", &zBuffer, 1);
     u32Result = orxConfig_GetListCount("PlayerList");
     orxObject_SetParent(_roPlayer.GetOrxObject(), GetOrxObject());
+    orxObject_SetOwner(_roPlayer.GetOrxObject(), GetOrxObject());
     MovePlayer(u32Result, _s32X, _s32Y);
     u32TickCount = 0;
 
@@ -102,7 +103,7 @@ orxBOOL Arena::MoveBullet(Bullet &_roBullet)
         // Can move?
         if(CheckPosition(_roBullet.s32X, _roBullet.s32Y))
         {
-            orxObject_SetParent(_roBullet.GetOrxObject(), poGrid[s32X + s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
+            orxObject_SetParent(_roBullet.GetOrxObject(), poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
         }
         else
         {
@@ -134,6 +135,8 @@ void Arena::ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECT
         orxConfig_PopSection();
         Bullet *poBullet = roGame.CreateObject<Bullet>("Bullet");
         orxObject_SetParent(poBullet->GetOrxObject(), roCell.poTile->GetOrxObject());
+        orxObject_SetOwner(poBullet->GetOrxObject(), GetOrxObject());
+        poBullet->u64ArenaID = GetGUID();
         roCell.u32Count++;
         poBullet->u32ID = _u32ID;
         poBullet->s32X = _s32X;
@@ -159,17 +162,18 @@ void Arena::OnCreate()
     // Init game
     orxConfig_PushSection("Game");
     orxConfig_SetBool("IsGameOver", orxFALSE);
+    orxConfig_SetU64("Arena", GetGUID());
     orxConfig_PopSection();
 
     // Init Grid
-    orxVECTOR vPos, vScale;
+    orxVECTOR vCurrentPos, vPos, vScale;
     orxConfig_GetVector("GridSize", &vGridSize);
     orxConfig_GetVector("TileSize", &vTileSize);
 
     poGrid = (Cell *)orxMemory_Allocate(sizeof(Cell) * orxF2U(vGridSize.fX) * orxF2U(vGridSize.fY), orxMEMORY_TYPE_MAIN);
     orxMemory_Zero(poGrid, sizeof(Cell) * orxF2U(vGridSize.fX) * orxF2U(vGridSize.fY));
 
-    orxVector_Mulf(&vPos, orxVector_Mul(&vPos, orxVector_Mul(&vPos, &vGridSize, &vTileSize), &GetScale(vScale)), -0.5f);
+    orxVector_Add(&vPos, &GetPosition(vCurrentPos), orxVector_Mulf(&vPos, orxVector_Mul(&vPos, orxVector_Mul(&vPos, &vGridSize, &vTileSize), &GetScale(vScale)), -0.5f));
     SetPosition(vPos);
 
     orxVector_SetAll(&vPos, orxFLOAT_0);
@@ -179,6 +183,7 @@ void Arena::OnCreate()
         {
             Cell *poCell    = poGrid + (i + (j * orxF2U(vGridSize.fX)));
             poCell->poTile  = roGame.CreateObject("Tile");
+            orxObject_SetOwner(poCell->poTile->GetOrxObject(), GetOrxObject());
             poCell->u32Count= 0;
             orxObject_SetParent(poCell->poTile->GetOrxObject(), GetOrxObject());
             poCell->poTile->SetPosition(vPos);
@@ -218,7 +223,7 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
                 if(orxConfig_GetBool("IsBullet"))
                 {
                     Bullet *poBullet = ScrollCast<Bullet *>(poObject);
-                    if(poBullet->bActive)
+                    if((poBullet->u64ArenaID == GetGUID()) && poBullet->bActive)
                     {
                         MoveBullet(*poBullet);
                     }
@@ -265,28 +270,32 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
             }
         }
 
-        // For all players
-        orxU32 u32AliveCount = 0;
-        Player *poWinner = orxNULL;
-        for(orxS32 i = 0, iCount = orxConfig_GetListCount("PlayerList"); i < iCount; i++)
+        // Not attract?
+        if(!orxConfig_GetBool("IsAttract"))
         {
-            Player *poPlayer = ld49::GetInstance().GetObject<Player>(orxConfig_GetListU64("PlayerList", i));
-            if(!poPlayer->bDead)
+            // For all players
+            orxU32 u32AliveCount = 0;
+            Player *poWinner = orxNULL;
+            for(orxS32 i = 0, iCount = orxConfig_GetListCount("PlayerList"); i < iCount; i++)
             {
-                u32AliveCount++;
-                poWinner = poPlayer;
+                Player *poPlayer = ld49::GetInstance().GetObject<Player>(orxConfig_GetListU64("PlayerList", i));
+                if(!poPlayer->bDead)
+                {
+                    u32AliveCount++;
+                    poWinner = poPlayer;
+                }
             }
-        }
-        if(((u32AliveCount == 1) && (orxConfig_GetListCount("PlayerList") > 1))
-        || (u32AliveCount == 0))
-        {
-            orxCHAR acName[64];
-            bIsGameOver = orxTRUE;
-            orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetModelName() : "NO ONE");
-            orxConfig_SetString("Winner", acName);
-            orxString_UpperCase(acName);
-            orxConfig_SetString("WINNER", acName);
-            roGame.CreateObject("GameOver");
+            if(((u32AliveCount == 1) && (orxConfig_GetListCount("PlayerList") > 1))
+            || (u32AliveCount == 0))
+            {
+                orxCHAR acName[64];
+                bIsGameOver = orxTRUE;
+                orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetModelName() : "NO ONE");
+                orxConfig_SetString("Winner", acName);
+                orxString_UpperCase(acName);
+                orxConfig_SetString("WINNER", acName);
+                orxObject_SetOwner(roGame.CreateObject("GameOver")->GetOrxObject(), GetOrxObject());
+            }
         }
     }
     else

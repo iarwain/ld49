@@ -10,14 +10,19 @@ void Player::Die()
 {
     if(!bDead)
     {
-        Object::Die();
-        bDead   = orxTRUE;
-        fEnergy = fMaxEnergy;
-        SetAnim("Dead");
-        orxCOLOR stColor;
-        GetColor(stColor);
-        stColor.fAlpha *= 0.75f;
-        SetColor(stColor);
+        PushConfigSection();
+        if(!orxConfig_GetBool("IsAttract"))
+        {
+            Object::Die();
+            bDead   = orxTRUE;
+            fEnergy = fMaxEnergy;
+            SetAnim("Dead");
+            orxCOLOR stColor;
+            GetColor(stColor);
+            stColor.fAlpha *= 0.75f;
+            SetColor(stColor);
+        }
+        PopConfigSection();
     }
 }
 
@@ -25,7 +30,16 @@ void Player::IncreaseEnergy()
 {
     if(!bDead)
     {
-        fEnergy = orxMIN(fMaxEnergy, fEnergy + fEnergyRate);
+        PushConfigSection();
+        if(orxConfig_GetBool("Unstable"))
+        {
+            fEnergy = orxMIN(orxFLOAT_0, fEnergy + fEnergyRate);
+        }
+        else
+        {
+            fEnergy = orxMIN(fMaxEnergy, fEnergy + fEnergyRate);
+        }
+        PopConfigSection();
     }
 }
 
@@ -43,9 +57,19 @@ void Player::OnCreate()
     fEnergyRate = orxConfig_GetFloat("EnergyRate");
 
     // Register with arena
-    orxVECTOR vPos;
-    orxConfig_GetVector("InitPos", &vPos);
-    u32ID = roGame.GetNextObject<Arena>()->RegisterPlayer(*this, orxF2S(vPos.fX), orxF2S(vPos.fY));
+    Arena *poArena = roGame.GetObject<Arena>(orxConfig_GetU64("Arena"));
+    if(poArena)
+    {
+        orxVECTOR vPos;
+        orxConfig_GetVector("InitPos", &vPos);
+        u32ID       = poArena->RegisterPlayer(*this, orxF2S(vPos.fX), orxF2S(vPos.fY));
+        u64ArenaID  = poArena->GetGUID();
+    }
+    else
+    {
+        Die();
+        SetLifeTime(orxFLOAT_0);
+    }
 }
 
 void Player::OnDelete()
@@ -58,9 +82,9 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
     {
         ld49 &roGame = ld49::GetInstance();
 
-        Arena *poArena = roGame.GetNextObject<Arena>();
+        Arena *poArena = roGame.GetObject<Arena>(u64ArenaID);
 
-        if(!poArena->bIsGameOver)
+        if(poArena && !poArena->bIsGameOver)
         {
             // Push config section
             PushConfigSection();
@@ -86,8 +110,7 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
 
             // Attack
             orxVECTOR vDirection;
-            orxBOOL   bUnstable = orxConfig_GetBool("Unstable");
-            orxFLOAT  fAttack   = ((bUnstable && (fEnergy < orxFLOAT_1) && (fEnergy >= -fMaxEnergy + orxFLOAT_1))
+            orxFLOAT  fAttack   = (((fEnergy < orxFLOAT_1) && (fEnergy >= -fMaxEnergy + orxFLOAT_1))
                                 && (orxInput_HasBeenActivated("AttackLeft") || orxInput_HasBeenActivated("AttackRight") || orxInput_HasBeenActivated("AttackUp") || orxInput_HasBeenActivated("AttackDown")))
                                   ? orxMath_GetRandomFloat(orxFLOAT_0, orxFLOAT_1)
                                   : 2.0f;

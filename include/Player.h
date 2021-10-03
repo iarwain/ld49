@@ -32,6 +32,7 @@ protected:
 
 private:
 
+                orxU64          u64ArenaID;
                 orxFLOAT        fEnergy, fMaxEnergy, fEnergyRate;
 };
 
