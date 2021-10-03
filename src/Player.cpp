@@ -96,14 +96,18 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
             if(fAttack <= orxFLOAT_1)
             {
                 Player *poPlayer    = poArena->GetPlayer();
-                s32BulletX          = poPlayer->s32X;
-                s32BulletY          = poPlayer->s32Y;
+                if(poPlayer == this)
+                {
+                    poPlayer = poArena->GetPlayer();
+                }
                 if(poPlayer != this)
                 {
-                    s32Distance = 2;
+                    s32Distance = orxMath_GetRandomS32(2, 3);
                     bTargeted   = orxTRUE;
                     fAttack     = 2.0f;
                 }
+                s32BulletX = poPlayer->s32X;
+                s32BulletY = poPlayer->s32Y;
             }
             if((((fEnergy >= orxFLOAT_1) || bTargeted) && orxInput_HasBeenActivated("AttackLeft")) || (fAttack <= 0.25f))
             {
