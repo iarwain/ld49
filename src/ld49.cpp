@@ -7,9 +7,9 @@
 #include "ld49.h"
 #undef __SCROLL_IMPL__
 
-#include "Object.h"
 #include "Arena.h"
 #include "Bullet.h"
+#include "Object.h"
 #include "Player.h"
 
 #define orxARCHIVE_IMPL
@@ -100,6 +100,7 @@ void ld49::BindObjects()
     // Bind the Object class to the Object config section
     ScrollBindObject<Arena>("Arena");
     ScrollBindObject<Bullet>("Bullet");
+    ScrollBindObject<Object>("Object");
     ScrollBindObject<Player>("Player");
 }
 

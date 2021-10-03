@@ -14,9 +14,10 @@ class Object : public ScrollObject
 {
 public:
 
-    virtual     void            Die()       {bDead = orxTRUE;}
+    virtual     void            Die()               {bDead = orxTRUE;}
 
                 orxBOOL         bDead;
+                orxBOOL         bUnstable;
 
 
 protected:
@@ -24,6 +25,8 @@ protected:
                 void            OnCreate();
                 void            OnDelete();
                 void            Update(const orxCLOCK_INFO &_rstInfo);
+
+                orxBOOL         OnShader(orxSHADER_EVENT_PAYLOAD &_rstPayload);
 
 
 private:

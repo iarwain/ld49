@@ -44,11 +44,11 @@ void Player::OnCreate()
     ld49 &roGame = ld49::GetInstance();
 
     // Init variables
+    Object::OnCreate();
     orxConfig_SetBool("IsPlayer", orxTRUE);
     s32X        = -1;
     s32Y        = -1;
     u32ID       = orxU32_UNDEFINED;
-    bDead       = orxFALSE;
     fEnergy     = fMaxEnergy = orxConfig_GetFloat("Energy");
     fEnergyRate = orxConfig_GetFloat("EnergyRate");
     IncreaseEnergy();
@@ -180,6 +180,9 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
                 SetAnim("0%");
             }
 
+            // Update status
+            bUnstable = (fEnergy < orxFLOAT_1) ? orxTRUE : orxFALSE;
+
             // Deselect input set
             orxInput_SelectSet(zSet);
 
@@ -187,13 +190,4 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
             PopConfigSection();
         }
     }
-}
-
-orxBOOL Player::OnShader(orxSHADER_EVENT_PAYLOAD &_rstPayload)
-{
-    if(!orxString_Compare(_rstPayload.zParamName, "unstable"))
-    {
-        _rstPayload.fValue = (fEnergy < orxFLOAT_1) ? orxFLOAT_1 : orxFLOAT_0;
-    }
-    return orxTRUE;
 }

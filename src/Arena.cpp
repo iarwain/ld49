@@ -137,6 +137,7 @@ void Arena::ShootBullet(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y, const orxVECT
         orxObject_SetParent(poBullet->GetOrxObject(), roCell.poTile->GetOrxObject());
         orxObject_SetOwner(poBullet->GetOrxObject(), GetOrxObject());
         poBullet->u64ArenaID = GetGUID();
+        poBullet->bUnstable = GetPlayer(_u32ID)->bUnstable;
         roCell.u32Count++;
         poBullet->u32ID = _u32ID;
         poBullet->s32X = _s32X;

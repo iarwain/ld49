@@ -16,6 +16,7 @@ public:
 
                 void            Die();
                 void            IncreaseEnergy();
+                orxBOOL         IsUnstable() const  {return fEnergy < orxFLOAT_1 ? orxTRUE : orxFALSE;}
 
                 orxU32          u32ID;
                 orxS32          s32X, s32Y;
@@ -26,8 +27,6 @@ protected:
                 void            OnCreate();
                 void            OnDelete();
                 void            Update(const orxCLOCK_INFO &_Info);
-
-                orxBOOL         OnShader(orxSHADER_EVENT_PAYLOAD &_rstPayload);
 
 
 private:

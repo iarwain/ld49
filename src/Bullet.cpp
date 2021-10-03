@@ -26,6 +26,7 @@ void Bullet::SetDirection(const orxVECTOR &_rvDirection)
 
 void Bullet::OnCreate()
 {
+    Object::OnCreate();
     orxConfig_SetBool("IsBullet", orxTRUE);
     orxConfig_GetVector("Direction", &vDirection);
     bActive     = orxFALSE;
@@ -40,4 +41,9 @@ void Bullet::OnDelete()
 
 void Bullet::Update(const orxCLOCK_INFO &_rstInfo)
 {
+    Object *poChild = ScrollCast<Object*>(GetOwnedChild());
+    if(poChild)
+    {
+        poChild->bUnstable = bUnstable;
+    }
 }
