@@ -166,6 +166,18 @@ void Arena::OnCreate()
     orxConfig_SetU64("Arena", GetGUID());
     orxConfig_PopSection();
 
+    // Init music
+    orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
+    if(pstMusic && !orxConfig_GetBool("IsAttract"))
+    {
+        orxObject_SetLifeTime(pstMusic, orxFLOAT_0);
+        roGame.CreateObject("GameMusic");
+    }
+    else if(!pstMusic && orxConfig_GetBool("IsAttract"))
+    {
+        roGame.CreateObject("MenuMusic");
+    }
+
     // Init Grid
     orxVECTOR vCurrentPos, vPos, vScale;
     orxConfig_GetVector("GridSize", &vGridSize);
@@ -246,7 +258,7 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
             }
 
             u32TickCount    = 0;
-            fTickTime       = orxConfig_GetFloat("TickTime");
+            fTickTime      += orxConfig_GetFloat("TickTime");
         }
 
         // For all cells
