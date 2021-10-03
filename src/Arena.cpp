@@ -207,7 +207,7 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
         fTickTime -= _rstInfo.fDT;
 
         // Should tick?
-        if((fTickTime <= orxFLOAT_0) || (u32TickCount >= u32TickSize))
+        if((fTickTime <= orxFLOAT_0) || ((fTickTime == -orxFLOAT_1) && (u32TickCount >= u32TickSize)))
         {
             // Update bullets (can't use GetNextObject<Bullet> as it triggers a compiler bug in a different part of the code (!) with MSVS2019)
             for(ScrollObject *poObject = roGame.GetNextObject();
