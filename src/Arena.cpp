@@ -86,29 +86,33 @@ void Arena::MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y)
 orxBOOL Arena::MoveBullet(Bullet &_roBullet)
 {
     orxBOOL bResult = orxTRUE;
-    orxS32  s32X, s32Y;
 
-    orxASSERT(poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count > 0);
-    poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count--;
-
-    s32X = _roBullet.s32X = _roBullet.s32X + orxF2S(_roBullet.vDirection.fX);
-    s32Y = _roBullet.s32Y = _roBullet.s32Y + orxF2S(_roBullet.vDirection.fY);
-
-    // Update player
-    if(CheckPosition(_roBullet.s32X, _roBullet.s32Y))
+    if(!_roBullet.bDead)
     {
-        orxObject_SetParent(_roBullet.GetOrxObject(), poGrid[s32X + s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
-    }
-    else
-    {
-        orxVECTOR vDirection;
-        vDirection.fX = (s32X < 0) ? orxFLOAT_1 : (s32X == orxF2S(vGridSize.fX)) ? -orxFLOAT_1 : _roBullet.vDirection.fX;
-        vDirection.fY = (s32Y < 0) ? orxFLOAT_1 : (s32Y == orxF2S(vGridSize.fY)) ? -orxFLOAT_1 : _roBullet.vDirection.fY;
-        vDirection.fZ = orxFLOAT_0;
-        _roBullet.SetDirection(vDirection);
-    }
+        orxS32  s32X, s32Y;
 
-    poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count++;
+        orxASSERT(poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count > 0);
+        poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count--;
+
+        s32X = _roBullet.s32X = _roBullet.s32X + orxF2S(_roBullet.vDirection.fX);
+        s32Y = _roBullet.s32Y = _roBullet.s32Y + orxF2S(_roBullet.vDirection.fY);
+
+        // Can move?
+        if(CheckPosition(_roBullet.s32X, _roBullet.s32Y))
+        {
+            orxObject_SetParent(_roBullet.GetOrxObject(), poGrid[s32X + s32Y * orxF2U(vGridSize.fX)].poTile->GetOrxObject());
+        }
+        else
+        {
+            orxVECTOR vDirection;
+            vDirection.fX = (s32X < 0) ? orxFLOAT_1 : (s32X == orxF2S(vGridSize.fX)) ? -orxFLOAT_1 : _roBullet.vDirection.fX;
+            vDirection.fY = (s32Y < 0) ? orxFLOAT_1 : (s32Y == orxF2S(vGridSize.fY)) ? -orxFLOAT_1 : _roBullet.vDirection.fY;
+            vDirection.fZ = orxFLOAT_0;
+            _roBullet.SetDirection(vDirection);
+        }
+
+        poGrid[_roBullet.s32X + _roBullet.s32Y * orxF2U(vGridSize.fX)].u32Count++;
+    }
 
     // Done!
     return bResult;

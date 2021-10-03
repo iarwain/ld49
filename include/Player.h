@@ -19,7 +19,6 @@ public:
 
                 orxU32          u32ID;
                 orxS32          s32X, s32Y;
-                orxBOOL         bDead;
 
 
 protected:

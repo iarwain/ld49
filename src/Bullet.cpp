@@ -7,7 +7,11 @@
 
 void Bullet::Die()
 {
-    SetLifeTime(orxFLOAT_0);
+    if(!bDead)
+    {
+        Object::Die();
+        SetLifeTime(orxFLOAT_0);
+    }
 }
 
 void Bullet::SetDirection(const orxVECTOR &_rvDirection)

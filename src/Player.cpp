@@ -10,6 +10,7 @@ void Player::Die()
 {
     if(!bDead)
     {
+        Object::Die();
         bDead = orxTRUE;
         orxCOLOR stColor;
         GetColor(stColor);
