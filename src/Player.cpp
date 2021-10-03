@@ -8,15 +8,22 @@
 
 void Player::Die()
 {
-    bDead = orxTRUE;
-    orxCOLOR stColor;
-    GetColor(stColor);
-    // orxColor_FromRGBToHSV(&stColor, &stColor);
-    // stColor.vHSV.fS *= 0.6f;
-    // stColor.vHSV.fV *= 0.3f;
-    // orxColor_FromHSVToRGB(&stColor, &stColor);
-    stColor.fAlpha *= 0.3f;
-    SetColor(stColor);
+    if(!bDead)
+    {
+        bDead = orxTRUE;
+        orxCOLOR stColor;
+        GetColor(stColor);
+        stColor.fAlpha *= 0.3f;
+        SetColor(stColor);
+    }
+}
+
+void Player::IncreaseEnergy()
+{
+    if(!bDead)
+    {
+        u32Energy = orxMIN(u32MaxEnergy, u32Energy + 1);
+    }
 }
 
 void Player::OnCreate()
@@ -25,10 +32,11 @@ void Player::OnCreate()
 
     // Init variables
     orxConfig_SetBool("IsPlayer", orxTRUE);
-    s32X    = -1;
-    s32Y    = -1;
-    u32ID   = orxU32_UNDEFINED;
-    bDead   = orxFALSE;
+    s32X        = -1;
+    s32Y        = -1;
+    u32ID       = orxU32_UNDEFINED;
+    bDead       = orxFALSE;
+    u32Energy   = u32MaxEnergy = orxConfig_GetU32("Energy");
 
     // Enable its inputs
     orxInput_EnableSet(orxConfig_GetString("Input"), orxTRUE);
@@ -75,26 +83,34 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
 
         // Attack
         orxVECTOR vDirection;
-        orxConfig_GetVector("Direction", &vDirection);
-        if(orxInput_HasBeenActivated("AttackLeft"))
+        orxBOOL bUnstable = orxConfig_GetBool("Unstable");
+        if((u32Energy > 0) && orxInput_HasBeenActivated("AttackLeft"))
         {
-            //orxVECTOR vDirection = {-orxFLOAT_1, orxFLOAT_0, orxFLOAT_0};
-            poArena->ShootBullet(u32ID, s32X - 1, s32Y, vDirection);
+            poArena->ShootBullet(u32ID, s32X - 1, s32Y - 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 3, &vDirection));
+            poArena->ShootBullet(u32ID, s32X - 1, s32Y, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 4, &vDirection));
+            poArena->ShootBullet(u32ID, s32X - 1, s32Y + 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 5, &vDirection));
+            u32Energy--;
         }
-        if(orxInput_HasBeenActivated("AttackRight"))
+        if((u32Energy > 0) && orxInput_HasBeenActivated("AttackRight"))
         {
-            //orxVECTOR vDirection = {orxFLOAT_1, orxFLOAT_0, orxFLOAT_0};
-            poArena->ShootBullet(u32ID, s32X + 1, s32Y, vDirection);
+            poArena->ShootBullet(u32ID, s32X + 1, s32Y - 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 1, &vDirection));
+            poArena->ShootBullet(u32ID, s32X + 1, s32Y, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 0, &vDirection));
+            poArena->ShootBullet(u32ID, s32X + 1, s32Y + 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 7, &vDirection));
+            u32Energy--;
         }
-        if(orxInput_HasBeenActivated("AttackUp"))
+        if((u32Energy > 0) && orxInput_HasBeenActivated("AttackUp"))
         {
-            //orxVECTOR vDirection = {orxFLOAT_0, -orxFLOAT_1, orxFLOAT_0};
-            poArena->ShootBullet(u32ID, s32X, s32Y - 1, vDirection);
+            poArena->ShootBullet(u32ID, s32X - 1, s32Y - 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 3, &vDirection));
+            poArena->ShootBullet(u32ID, s32X, s32Y - 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 2, &vDirection));
+            poArena->ShootBullet(u32ID, s32X + 1, s32Y - 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 1, &vDirection));
+            u32Energy--;
         }
-        if(orxInput_HasBeenActivated("AttackDown"))
+        if((u32Energy > 0) && orxInput_HasBeenActivated("AttackDown"))
         {
-            //orxVECTOR vDirection = {orxFLOAT_0, orxFLOAT_1, orxFLOAT_0};
-            poArena->ShootBullet(u32ID, s32X, s32Y + 1, vDirection);
+            poArena->ShootBullet(u32ID, s32X - 1, s32Y + 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 5, &vDirection));
+            poArena->ShootBullet(u32ID, s32X, s32Y + 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 6, &vDirection));
+            poArena->ShootBullet(u32ID, s32X + 1, s32Y + 1, bUnstable ? *orxConfig_GetVector("Direction", &vDirection) : *orxConfig_GetListVector("Direction", 7, &vDirection));
+            u32Energy--;
         }
 
         // Deselect input set

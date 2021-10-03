@@ -50,7 +50,6 @@ private:
                 orxVECTOR       vOrigin;
                 Cell *          poGrid;
                 orxU32          u32TickCount;
-                orxBOOL         bCheck;
 };
 
 #endif // __ARENA_H__

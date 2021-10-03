@@ -15,6 +15,7 @@ class Player : public Object
 public:
 
                 void            Die();
+                void            IncreaseEnergy();
 
                 orxU32          u32ID;
                 orxS32          s32X, s32Y;
@@ -29,6 +30,8 @@ protected:
 
 
 private:
+
+                orxU32          u32Energy, u32MaxEnergy;
 };
 
 #endif // __PLAYER_H__

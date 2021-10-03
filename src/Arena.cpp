@@ -49,7 +49,6 @@ orxU32 Arena::RegisterPlayer(Player &_roPlayer, orxS32 _s32X, orxS32 _s32Y)
     orxObject_SetParent(_roPlayer.GetOrxObject(), GetOrxObject());
     MovePlayer(u32Result, _s32X, _s32Y);
     u32TickCount = 0;
-    bCheck = orxFALSE;
 
     PopConfigSection();
 
@@ -82,7 +81,6 @@ void Arena::MovePlayer(orxU32 _u32ID, orxS32 _s32X, orxS32 _s32Y)
     poPlayer->s32X = _s32X;
     poPlayer->s32Y = _s32Y;
     u32TickCount++;
-    bCheck = orxTRUE;
 }
 
 orxBOOL Arena::MoveBullet(Bullet &_roBullet)
@@ -221,29 +219,32 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
             poObject->PopConfigSection();
         }
 
+        // Replenish all players' energy
+        for(orxS32 i = 0, iCount = orxConfig_GetListCount("PlayerList"); i < iCount; i++)
+        {
+            Player *poPlayer = ld49::GetInstance().GetObject<Player>(orxConfig_GetListU64("PlayerList", i));
+            poPlayer->IncreaseEnergy();
+        }
+
         u32TickCount -= u32TickSize;
     }
 
-    if(bCheck)
+    // For all cells
+    for(orxU32 i = 0, iCount = orxF2U(vGridSize.fX) * orxF2U(vGridSize.fY); i < iCount; i++)
     {
-        // For all cells
-        for(orxU32 i = 0, iCount = orxF2U(vGridSize.fX) * orxF2U(vGridSize.fY); i < iCount; i++)
+        // Collision?
+        Cell& roCell = poGrid[i];
+        if(roCell.u32Count > 1)
         {
-            // Collision?
-            Cell& roCell = poGrid[i];
-            if(roCell.u32Count > 1)
+            // For all children
+            for(orxOBJECT *pstObject = orxObject_GetChild(roCell.poTile->GetOrxObject());
+                pstObject;
+                pstObject = orxObject_GetSibling(pstObject))
             {
-                // For all children
-                for(orxOBJECT *pstObject = orxObject_GetChild(roCell.poTile->GetOrxObject());
-                    pstObject;
-                    pstObject = orxObject_GetSibling(pstObject))
-                {
-                    ((Object *)orxObject_GetUserData(pstObject))->Die();
-                }
-                roCell.u32Count = 0;
+                ((Object *)orxObject_GetUserData(pstObject))->Die();
             }
+            roCell.u32Count = 0;
         }
-        bCheck = orxFALSE;
     }
 
     PopConfigSection();
