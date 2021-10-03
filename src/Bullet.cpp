@@ -9,6 +9,7 @@ void Bullet::SetDirection(const orxVECTOR &_rvDirection)
 {
     vDirection.fX = (_rvDirection.fX < orxFLOAT_0) ? -orxFLOAT_1 : (_rvDirection.fX > orxFLOAT_0) ? orxFLOAT_1 : orxFLOAT_0;
     vDirection.fY = (_rvDirection.fY < orxFLOAT_0) ? -orxFLOAT_1 : (_rvDirection.fY > orxFLOAT_0) ? orxFLOAT_1 : orxFLOAT_0;
+    vDirection.fZ = orxFLOAT_0;
     orxConfig_SetVector("DummyDirection", &vDirection);
     SetAnim(orxConfig_GetString("DummyDirection"), orxTRUE, orxTRUE);
 }

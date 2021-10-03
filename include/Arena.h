@@ -28,6 +28,7 @@ public:
 
                 orxVECTOR       vGridSize;
                 orxVECTOR       vTileSize;
+                orxU32          u32TickSize;
 
 
 protected:

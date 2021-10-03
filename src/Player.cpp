@@ -14,8 +14,10 @@ void Player::OnCreate()
     orxVECTOR vPos;
     orxConfig_SetBool("IsPlayer", orxTRUE);
     orxConfig_GetVector("InitPos", &vPos);
-    s32X = orxF2S(vPos.fX);
-    s32Y = orxF2S(vPos.fY);
+    s32X    = orxF2S(vPos.fX);
+    s32Y    = orxF2S(vPos.fY);
+    u32ID   = orxU32_UNDEFINED;
+    bDead   = orxFALSE;
 
     // Enable its inputs
     orxInput_EnableSet(orxConfig_GetString("Input"), orxTRUE);
@@ -32,14 +34,14 @@ void Player::OnDelete()
 
 void Player::Update(const orxCLOCK_INFO &_rstInfo)
 {
-    ld49 &roGame = ld49::GetInstance();
-
-    // Push config section
-    PushConfigSection();
-
-    if(!orxConfig_GetBool("IsGameOver"))
+    if(!bDead)
     {
+        ld49 &roGame = ld49::GetInstance();
+
         Arena *poArena = roGame.GetNextObject<Arena>();
+
+        // Push config section
+        PushConfigSection();
 
         // Select input set
         const orxSTRING zSet = orxInput_GetCurrentSet();
@@ -50,31 +52,37 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
         {
             "MoveRight", "MoveLeft", "MoveDown", "MoveUp"
         };
-        orxVECTOR vMove = {(orxInput_HasBeenActivated("MoveRight") ? orxFLOAT_1 : orxFLOAT_0) - (orxInput_HasBeenActivated("MoveLeft") ? orxFLOAT_1 : orxFLOAT_0), (orxInput_HasBeenActivated("MoveDown") ? orxFLOAT_1 : orxFLOAT_0) - (orxInput_HasBeenActivated("MoveUp") ? orxFLOAT_1 : orxFLOAT_0), orxFLOAT_0};
+        orxVECTOR vMove =
+        {
+            (orxInput_HasBeenActivated("MoveRight") ? orxFLOAT_1 : orxFLOAT_0) - (orxInput_HasBeenActivated("MoveLeft") ? orxFLOAT_1 : orxFLOAT_0),
+            (orxInput_HasBeenActivated("MoveDown") ? orxFLOAT_1 : orxFLOAT_0) - (orxInput_HasBeenActivated("MoveUp") ? orxFLOAT_1 : orxFLOAT_0), orxFLOAT_0
+        };
         if(!orxVector_IsNull(&vMove))
         {
             poArena->MovePlayer(u32ID, s32X + orxF2S(vMove.fX), s32Y + orxF2S(vMove.fY));
         }
 
         // Attack
+        orxVECTOR vDirection;
+        orxConfig_GetVector("Direction", &vDirection);
         if(orxInput_HasBeenActivated("AttackLeft"))
         {
-            orxVECTOR vDirection = {-orxFLOAT_1, orxFLOAT_0, orxFLOAT_0};
+            //orxVECTOR vDirection = {-orxFLOAT_1, orxFLOAT_0, orxFLOAT_0};
             poArena->ShootBullet(u32ID, s32X - 1, s32Y, vDirection);
         }
         if(orxInput_HasBeenActivated("AttackRight"))
         {
-            orxVECTOR vDirection = {orxFLOAT_1, orxFLOAT_0, orxFLOAT_0};
+            //orxVECTOR vDirection = {orxFLOAT_1, orxFLOAT_0, orxFLOAT_0};
             poArena->ShootBullet(u32ID, s32X + 1, s32Y, vDirection);
         }
         if(orxInput_HasBeenActivated("AttackUp"))
         {
-            orxVECTOR vDirection = {orxFLOAT_0, -orxFLOAT_1, orxFLOAT_0};
+            //orxVECTOR vDirection = {orxFLOAT_0, -orxFLOAT_1, orxFLOAT_0};
             poArena->ShootBullet(u32ID, s32X, s32Y - 1, vDirection);
         }
         if(orxInput_HasBeenActivated("AttackDown"))
         {
-            orxVECTOR vDirection = {orxFLOAT_0, orxFLOAT_1, orxFLOAT_0};
+            //orxVECTOR vDirection = {orxFLOAT_0, orxFLOAT_1, orxFLOAT_0};
             poArena->ShootBullet(u32ID, s32X, s32Y + 1, vDirection);
         }
 
