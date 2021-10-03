@@ -49,6 +49,7 @@ private:
 
                 orxVECTOR       vOrigin;
                 Cell *          poGrid;
+                orxFLOAT        fTickTime;
                 orxU32          u32TickCount;
 };
 
