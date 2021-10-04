@@ -9,7 +9,7 @@
 #define IDI_ICON1                               102
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDI_ICON1          ICON           "..\\icon\\512.ico"
+IDI_ICON1          ICON           "..\\icon\\256.ico"
 
 1 VERSIONINFO
 FILEVERSION     1,0,0,0
