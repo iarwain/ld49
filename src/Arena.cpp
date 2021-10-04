@@ -160,6 +160,7 @@ void Arena::OnCreate()
     u32TickCount    = 0;
     bIsGameOver     = orxFALSE;
     bIsTutorial     = orxConfig_GetBool("IsTutorial");
+    bIsAttract      = orxConfig_GetBool("IsAttract");
 
     // Init game
     orxConfig_PushSection("Game");
@@ -168,15 +169,18 @@ void Arena::OnCreate()
     orxConfig_PopSection();
 
     // Init music
-    orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
-    if(pstMusic && !bIsTutorial)
+    if(!bIsAttract)
     {
-        orxObject_SetLifeTime(pstMusic, orxFLOAT_0);
-        orxObject_CreateFromConfig("GameMusic");
-    }
-    else if(!pstMusic && bIsTutorial)
-    {
-        orxObject_CreateFromConfig("MenuMusic");
+        orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
+        if(pstMusic && !bIsTutorial)
+        {
+            orxObject_SetLifeTime(pstMusic, orxFLOAT_0);
+            orxObject_CreateFromConfig("GameMusic");
+        }
+        else if(!pstMusic && bIsTutorial)
+        {
+            orxObject_CreateFromConfig("MenuMusic");
+        }
     }
 
     // Init Grid
@@ -210,7 +214,7 @@ void Arena::OnCreate()
 
 void Arena::OnDelete()
 {
-    if(!bIsTutorial)
+    if(!bIsTutorial && !bIsAttract)
     {
         orxConfig_PushSection("Game");
         orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
@@ -316,13 +320,22 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
             if(((u32AliveCount == 1) && (orxConfig_GetListCount("PlayerList") > 1))
             || (u32AliveCount == 0))
             {
-                orxCHAR acName[64];
-                bIsGameOver = orxTRUE;
-                orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetModelName() : "NO ONE");
-                orxConfig_SetString("Winner", acName);
-                orxString_UpperCase(acName);
-                orxConfig_SetString("WINNER", acName);
-                orxObject_SetOwner(roGame.CreateObject("GameOver")->GetOrxObject(), GetOrxObject());
+                // Attract?
+                if(bIsAttract)
+                {
+                    bIsGameOver = orxTRUE;
+                    AddTrack("ResetAttract");
+                }
+                else
+                {
+                    orxCHAR acName[64];
+                    bIsGameOver = orxTRUE;
+                    orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetModelName() : "NO ONE");
+                    orxConfig_SetString("Winner", acName);
+                    orxString_UpperCase(acName);
+                    orxConfig_SetString("WINNER", acName);
+                    orxObject_SetOwner(roGame.CreateObject("GameOver")->GetOrxObject(), GetOrxObject());
+                }
             }
         }
     }

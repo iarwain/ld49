@@ -53,6 +53,7 @@ private:
                 orxFLOAT        fTickTime;
                 orxU32          u32TickCount;
                 orxBOOL         bIsTutorial;
+                orxBOOL         bIsAttract;
 };
 
 #endif // __ARENA_H__

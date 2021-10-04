@@ -47,7 +47,6 @@ void ld49::Update(const orxCLOCK_INFO &_rstInfo)
     // Reset?
     else if(orxInput_HasBeenActivated("Reset"))
     {
-        PauseGame(orxFALSE);
         for(ScrollObject *poObject = GetNextObject();
             poObject;
             poObject = GetNextObject())

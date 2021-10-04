@@ -33,6 +33,7 @@ private:
 
                 orxU64          u64ArenaID;
                 orxFLOAT        fEnergy, fMaxEnergy, fEnergyRate;
+                orxBOOL         bIsAttract;
 };
 
 #endif // __PLAYER_H__

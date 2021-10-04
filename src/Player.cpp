@@ -49,6 +49,7 @@ void Player::OnCreate()
     s32X        = -1;
     s32Y        = -1;
     u32ID       = orxU32_UNDEFINED;
+    bIsAttract  = orxConfig_GetBool("IsAttract");
     fEnergy     = fMaxEnergy = orxConfig_GetFloat("Energy");
     fEnergyRate = orxConfig_GetFloat("EnergyRate");
     IncreaseEnergy();
@@ -90,10 +91,6 @@ void Player::Update(const orxCLOCK_INFO &_rstInfo)
             orxInput_SelectSet(orxConfig_GetString("Input"));
 
             // Move
-            const orxSTRING azMoveList[4] =
-            {
-                "MoveRight", "MoveLeft", "MoveDown", "MoveUp"
-            };
             orxVECTOR vMove =
             {
                 (orxInput_HasBeenActivated("MoveRight") ? orxFLOAT_1 : orxFLOAT_0) - (orxInput_HasBeenActivated("MoveLeft") ? orxFLOAT_1 : orxFLOAT_0),
