@@ -49,7 +49,7 @@ Space/Start/Back        - Go back to Select Menu
 
 Misc
 ----
-F12 / Thumb Stick       - Capture a screenshot
+F12 / Thumb Press       - Capture a screenshot
 
 -------------------------------------------------
 
