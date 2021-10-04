@@ -159,7 +159,7 @@ void Arena::OnCreate()
     u32TickSize     = orxConfig_GetU32("TickSize");
     u32TickCount    = 0;
     bIsGameOver     = orxFALSE;
-    bIsAttract      = orxConfig_GetBool("IsAttract");
+    bIsTutorial     = orxConfig_GetBool("IsTutorial");
 
     // Init game
     orxConfig_PushSection("Game");
@@ -169,12 +169,12 @@ void Arena::OnCreate()
 
     // Init music
     orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
-    if(pstMusic && !bIsAttract)
+    if(pstMusic && !bIsTutorial)
     {
         orxObject_SetLifeTime(pstMusic, orxFLOAT_0);
         orxObject_CreateFromConfig("GameMusic");
     }
-    else if(!pstMusic && bIsAttract)
+    else if(!pstMusic && bIsTutorial)
     {
         orxObject_CreateFromConfig("MenuMusic");
     }
@@ -210,7 +210,7 @@ void Arena::OnCreate()
 
 void Arena::OnDelete()
 {
-    if(!bIsAttract)
+    if(!bIsTutorial)
     {
         orxConfig_PushSection("Game");
         orxOBJECT* pstMusic = orxOBJECT(orxStructure_Get(orxConfig_GetU64("Music")));
@@ -298,8 +298,8 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
             }
         }
 
-        // Not attract?
-        if(!bIsAttract)
+        // Not tutorial?
+        if(!bIsTutorial)
         {
             // For all players
             orxU32 u32AliveCount = 0;
