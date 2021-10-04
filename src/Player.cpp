@@ -6,6 +6,31 @@
 #include "Player.h"
 #include "Arena.h"
 
+void orxFASTCALL Attract(const orxCLOCK_INFO *_pstClockInfo, void *_pContext)
+{
+    Player *poPlayer = (Player *)_pContext;
+
+    if(!poPlayer->bDead)
+    {
+        poPlayer->PushConfigSection();
+        const orxSTRING zSet = orxInput_GetCurrentSet();
+        orxInput_SelectSet(orxConfig_GetString("Input"));
+        orxFLOAT fDelay = orxConfig_GetFloat("AttractDelay");
+        if(orxMath_GetRandomFloat(orxFLOAT_0, orxFLOAT_1) <= orxConfig_GetFloat("AttackChance"))
+        {
+            orxInput_SetValue(orxConfig_GetString("AttackList"), orxFLOAT_1);
+            fDelay += orxConfig_GetFloat("AttackDelay");
+        }
+        else
+        {
+            orxInput_SetValue(orxConfig_GetString("MoveList"), orxFLOAT_1);
+        }
+        orxClock_AddGlobalTimer(Attract, fDelay, 1, _pContext);
+        orxInput_SelectSet(zSet);
+        poPlayer->PopConfigSection();
+    }
+}
+
 void Player::Die()
 {
     if(!bDead)
@@ -62,6 +87,11 @@ void Player::OnCreate()
         orxConfig_GetVector("InitPos", &vPos);
         u32ID       = poArena->RegisterPlayer(*this, orxF2S(vPos.fX), orxF2S(vPos.fY));
         u64ArenaID  = poArena->GetGUID();
+
+        if(bIsAttract)
+        {
+            orxClock_AddGlobalTimer(Attract, orxConfig_GetFloat("AttractDelay"), 1, this);
+        }
     }
     else
     {
@@ -71,6 +101,8 @@ void Player::OnCreate()
 
 void Player::OnDelete()
 {
+    // Remove attract mode
+    orxClock_RemoveGlobalTimer(Attract, -orxFLOAT_1, this);
 }
 
 void Player::Update(const orxCLOCK_INFO &_rstInfo)
