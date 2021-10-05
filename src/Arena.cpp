@@ -60,7 +60,7 @@ Player *Arena::GetPlayer(orxU32 _u32ID) const
 {
     PushConfigSection();
 
-    auto poResult = ld49::GetInstance().GetObject<Player>((_u32ID != orxU32_UNDEFINED) ? orxConfig_GetListU64("PlayerList", _u32ID - 1) : orxConfig_GetU64("PlayerList"));
+    Player *poResult = ld49::GetInstance().GetObject<Player>((_u32ID != orxU32_UNDEFINED) ? orxConfig_GetListU64("PlayerList", _u32ID - 1) : orxConfig_GetU64("PlayerList"));
 
     PopConfigSection();
 
