@@ -1,6 +1,6 @@
 /* Scroll
  *
- * Copyright (c) 2008-2021 Orx-Project
+ * Copyright (c) 2008- Orx-Project
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -63,6 +63,9 @@ const orxSTRING ScrollBase::szConfigScrollObjectPausable      = "Pausable";
 //! Static variables
 ScrollBase *ScrollBase::spoInstance                           = orxNULL;
 
+template<class O>
+ScrollObjectBinder<O> *ScrollObjectBinder<O>::spoInstance     = orxNULL;
+
 
 //! Code
 ScrollBase &ScrollBase::GetInstance()
@@ -73,9 +76,9 @@ ScrollBase &ScrollBase::GetInstance()
   return *spoInstance;
 }
 
-ScrollBase::ScrollBase() : mzMapName(orxNULL), mpstMainViewport(orxNULL), mpstMainCamera(orxNULL),
+ScrollBase::ScrollBase() : mzMapName(orxNULL), mzCurrentCreateObject(orxNULL), mzCurrentDeleteObject(orxNULL),
+                           mpstMainViewport(orxNULL), mpstMainCamera(orxNULL), mpfnCustomMapSaveFilter(orxNULL),
                            mu32NextObjectID(0), mu32RuntimeObjectID(0), mu32LayerNumber(1), mu32FrameCount(0),
-                           mzCurrentObject(orxNULL), mpfnCustomMapSaveFilter(orxNULL),
                            mbEditorMode(orxFALSE), mbDifferentialMode(orxFALSE), mbObjectListLocked(orxFALSE), mbIsRunning(orxFALSE), mbIsPaused(orxFALSE)
 {
 }
@@ -114,16 +117,16 @@ ScrollObject *ScrollBase::CreateObject(const orxSTRING _zModelName, ScrollObject
     poBinder = ScrollObjectBinderBase::GetBinder(orxFLAG_TEST(_xFlags, ScrollObject::FlagSave | ScrollObject::FlagRunTime) ? _zModelName : orxSTRING_EMPTY);
 
     // Stores current object
-    zPreviousObject = mzCurrentObject;
+    zPreviousObject = mzCurrentCreateObject;
 
     // Flags current object creation
-    mzCurrentObject = _zModelName;
+    mzCurrentCreateObject = _zModelName;
 
     // Uses it
     poResult = poBinder->CreateObject(_zModelName, _zInstanceName ? _zInstanceName : GetNewObjectName(zInstanceName, (_xFlags & ScrollObject::FlagRunTime) ? orxTRUE : orxFALSE), _xFlags);
 
     // Restores previous object
-    mzCurrentObject = zPreviousObject;
+    mzCurrentCreateObject = zPreviousObject;
 
     // Valid?
     if(poResult)
@@ -231,16 +234,16 @@ void ScrollBase::DeleteObject(ScrollObject *_poObject)
       poBinder = ScrollObjectBinderBase::GetBinder(_poObject->TestFlags(ScrollObject::FlagSave | ScrollObject::FlagRunTime) ? _poObject->GetModelName() : orxSTRING_EMPTY);
 
       // Stores current object
-      zPreviousObject = mzCurrentObject;
+      zPreviousObject = mzCurrentDeleteObject;
 
       // Flags current object deletion
-      mzCurrentObject = _poObject->GetModelName();
+      mzCurrentDeleteObject = _poObject->GetModelName();
 
       // Deletes it
       poBinder->DeleteObject(_poObject);
 
       // Restores previous object
-      mzCurrentObject = zPreviousObject;
+      mzCurrentDeleteObject = zPreviousObject;
     }
     else
     {
@@ -499,9 +502,9 @@ orxSTATUS ScrollBase::LoadMap()
       s32ScrollObjectNumber = orxConfig_GetS32(szConfigScrollObjectNumber);
 
       // For all objects to load
-      for(s32ScrollObjectCount = 0, i = 0, orxString_NPrint(acBuffer, sizeof(acBuffer) - 1, szConfigScrollObjectFormat, i), acBuffer[31] = orxCHAR_NULL;
+      for(s32ScrollObjectCount = 0, i = 0, orxString_NPrint(acBuffer, sizeof(acBuffer), szConfigScrollObjectFormat, i);
           s32ScrollObjectCount < s32ScrollObjectNumber;
-          i++, orxString_NPrint(acBuffer, 32, szConfigScrollObjectFormat, i), acBuffer[sizeof(acBuffer) - 1] = orxCHAR_NULL)
+          i++, orxString_NPrint(acBuffer, sizeof(acBuffer), szConfigScrollObjectFormat, i))
       {
         // Has section?
         if(orxConfig_HasSection(acBuffer))
@@ -1196,7 +1199,8 @@ orxSTATUS ScrollBase::BaseInit()
             && (orxEvent_AddHandler(orxEVENT_TYPE_ANIM, StaticEventHandler) != orxSTATUS_FAILURE)
             && (orxEvent_AddHandler(orxEVENT_TYPE_RENDER, StaticEventHandler) != orxSTATUS_FAILURE)
             && (orxEvent_AddHandler(orxEVENT_TYPE_SHADER, StaticEventHandler) != orxSTATUS_FAILURE)
-            && (orxEvent_AddHandler(orxEVENT_TYPE_PHYSICS, StaticEventHandler) != orxSTATUS_FAILURE)) ? orxSTATUS_SUCCESS : orxSTATUS_FAILURE;
+            && (orxEvent_AddHandler(orxEVENT_TYPE_PHYSICS, StaticEventHandler) != orxSTATUS_FAILURE)
+            && (orxEvent_AddHandler(orxEVENT_TYPE_FX, StaticEventHandler) != orxSTATUS_FAILURE)) ? orxSTATUS_SUCCESS : orxSTATUS_FAILURE;
 
     // Successful?
     if(eResult != orxSTATUS_FAILURE)
@@ -1208,6 +1212,7 @@ orxSTATUS ScrollBase::BaseInit()
       orxEvent_SetHandlerIDFlags(StaticEventHandler, orxEVENT_TYPE_RENDER, orxNULL, orxEVENT_GET_FLAG(orxRENDER_EVENT_OBJECT_START), orxEVENT_KU32_MASK_ID_ALL);
       orxEvent_SetHandlerIDFlags(StaticEventHandler, orxEVENT_TYPE_SHADER, orxNULL, orxEVENT_GET_FLAG(orxSHADER_EVENT_SET_PARAM), orxEVENT_KU32_MASK_ID_ALL);
       orxEvent_SetHandlerIDFlags(StaticEventHandler, orxEVENT_TYPE_PHYSICS, orxNULL, orxEVENT_GET_FLAG(orxPHYSICS_EVENT_CONTACT_ADD) | orxEVENT_GET_FLAG(orxPHYSICS_EVENT_CONTACT_REMOVE), orxEVENT_KU32_MASK_ID_ALL);
+      orxEvent_SetHandlerIDFlags(StaticEventHandler, orxEVENT_TYPE_FX, orxNULL, orxEVENT_GET_FLAG(orxFX_EVENT_START) | orxEVENT_GET_FLAG(orxFX_EVENT_STOP) | orxEVENT_GET_FLAG(orxFX_EVENT_LOOP), orxEVENT_KU32_MASK_ID_ALL);
 
       // Clears object lists
       orxMemory_Zero(&mstObjectList, sizeof(orxLINKLIST));
@@ -1274,6 +1279,9 @@ void ScrollBase::BaseExit()
   // Clears map
   SetMapName(orxNULL);
 
+  // Disables object create handler
+  orxEvent_SetHandlerIDFlags(StaticEventHandler, orxEVENT_TYPE_OBJECT, orxNULL, orxEVENT_KU32_FLAG_ID_NONE, orxEVENT_GET_FLAG(orxOBJECT_EVENT_CREATE));
+
   // For all objects
   for(ScrollObject *poObject = GetNextObject(orxNULL, orxTRUE);
       poObject;
@@ -1327,8 +1335,21 @@ void ScrollBase::BaseUpdate(const orxCLOCK_INFO &_rstInfo)
           // Gets its clock
           pstClock = orxObject_GetClock(pstObject);
 
-          // Updates object
-          poObject->Update(pstClock ? *orxClock_GetInfo(pstClock) : _rstInfo);
+          // Valid?
+          if(pstClock)
+          {
+            // Not paused?
+            if(!orxClock_IsPaused(pstClock))
+            {
+              // Updates object
+              poObject->Update(*orxClock_GetInfo(pstClock));
+            }
+          }
+          else
+          {
+            // Updates object
+            poObject->Update(_rstInfo);
+          }
         }
       }
     }
@@ -1408,14 +1429,13 @@ orxSTRING ScrollBase::GetNewObjectName(orxCHAR _zInstanceName[32], orxBOOL _bRun
   if(_bRunTime)
   {
     // Creates name
-    orxString_NPrint(zResult, 31, szConfigScrollObjectRuntimeFormat, mu32RuntimeObjectID++);
+    orxString_NPrint(zResult, 32, szConfigScrollObjectRuntimeFormat, mu32RuntimeObjectID++);
   }
   else
   {
     // Creates name
-    orxString_NPrint(zResult, 31, szConfigScrollObjectFormat, mu32NextObjectID++);
+    orxString_NPrint(zResult, 32, szConfigScrollObjectFormat, mu32NextObjectID++);
   }
-  zResult[31] = orxCHAR_NULL;
 
   // Done
   return zResult;
@@ -1505,45 +1525,40 @@ orxSTATUS orxFASTCALL ScrollBase::StaticEventHandler(const orxEVENT *_pstEvent)
     // System event
     case orxEVENT_TYPE_SYSTEM:
     {
-      // Game loop start?
-      if(_pstEvent->eID == orxSYSTEM_EVENT_GAME_LOOP_START)
-      {
-        orxSYSTEM_EVENT_PAYLOAD *pstPayload;
+      orxSYSTEM_EVENT_PAYLOAD *pstPayload;
 
-        // Gets game instance
-        ScrollBase &roGame = ScrollBase::GetInstance();
+      // Gets game instance
+      ScrollBase &roGame = ScrollBase::GetInstance();
 
-        // Gets payload
-        pstPayload = (orxSYSTEM_EVENT_PAYLOAD *)_pstEvent->pstPayload;
+      // Gets payload
+      pstPayload = (orxSYSTEM_EVENT_PAYLOAD *)_pstEvent->pstPayload;
 
-        // Stores frame count
-        roGame.mu32FrameCount = pstPayload->u32FrameCount;
-      }
-
+      // Stores frame count
+      roGame.mu32FrameCount = pstPayload->u32FrameCount;
       break;
     }
 
     // Object event
     case orxEVENT_TYPE_OBJECT:
     {
+      orxOBJECT *pstObject;
+
+      // Gets game instance
+      ScrollBase &roGame = ScrollBase::GetInstance();
+
+      // Gets object
+      pstObject = orxOBJECT(_pstEvent->hSender);
+
       // Create?
       if(_pstEvent->eID == orxOBJECT_EVENT_CREATE)
       {
-        orxOBJECT *pstObject;
-
-        // Gets game instance
-        ScrollBase &roGame = ScrollBase::GetInstance();
-
-        // Gets object
-        pstObject = orxOBJECT(_pstEvent->hSender);
-
         // Not an internal creation?
-        if(!roGame.mzCurrentObject || !orxString_SearchString(roGame.mzCurrentObject, orxObject_GetName(pstObject)))
+        if(!roGame.mzCurrentCreateObject || orxString_Compare(roGame.mzCurrentCreateObject, orxObject_GetName(pstObject)))
         {
           ScrollObjectBinderBase *poBinder;
 
           // Gets binder
-          poBinder = ScrollObjectBinderBase::GetBinder(orxObject_GetName(pstObject), roGame.mzCurrentObject ? orxTRUE : orxFALSE);
+          poBinder = ScrollObjectBinderBase::GetBinder(orxObject_GetName(pstObject), roGame.mzCurrentCreateObject ? orxTRUE : orxFALSE);
 
           // Found?
           if(poBinder)
@@ -1565,22 +1580,14 @@ orxSTATUS orxFASTCALL ScrollBase::StaticEventHandler(const orxEVENT *_pstEvent)
         else
         {
           // Clears internal object
-          roGame.mzCurrentObject = orxNULL;
+          roGame.mzCurrentCreateObject = orxNULL;
         }
       }
       // Delete?
       else if(_pstEvent->eID == orxOBJECT_EVENT_DELETE)
       {
-        orxOBJECT *pstObject;
-
-        // Gets game instance
-        ScrollBase &roGame = ScrollBase::GetInstance();
-
-        // Gets object
-        pstObject = orxOBJECT(_pstEvent->hSender);
-
         // Not an internal deletion?
-        if(!roGame.mzCurrentObject || !orxString_SearchString(roGame.mzCurrentObject, orxObject_GetName(pstObject)))
+        if(!roGame.mzCurrentDeleteObject || orxString_Compare(roGame.mzCurrentDeleteObject, orxObject_GetName(pstObject)))
         {
           ScrollObject *poObject;
 
@@ -1595,178 +1602,210 @@ orxSTATUS orxFASTCALL ScrollBase::StaticEventHandler(const orxEVENT *_pstEvent)
           {
             ScrollObjectBinderBase *poBinder;
 
-            // Clears internal reference
-            poObject->SetOrxObject(orxNULL);
-
             // Gets binder
             poBinder = ScrollObjectBinderBase::GetBinder(orxObject_GetName(pstObject));
+            orxASSERT(poBinder);
 
-            // Found?
-            if(poBinder)
-            {
-              // Uses it to delete object
-              poBinder->DeleteObject(poObject, orxObject_GetName(pstObject));
-            }
+            // Uses it to delete object
+            poBinder->DeleteObject(poObject, orxObject_GetName(pstObject));
           }
         }
         else
         {
           // Clears internal object
-          roGame.mzCurrentObject = orxNULL;
+          roGame.mzCurrentDeleteObject = orxNULL;
         }
       }
-
       break;
     }
 
     // Physics event
     case orxEVENT_TYPE_PHYSICS:
     {
-      // Collision?
-      if((_pstEvent->eID == orxPHYSICS_EVENT_CONTACT_ADD) || (_pstEvent->eID == orxPHYSICS_EVENT_CONTACT_REMOVE))
+      orxPHYSICS_EVENT_PAYLOAD *pstPayload;
+      ScrollObject             *poSender, *poRecipient;
+
+      // Gets payload
+      pstPayload = (orxPHYSICS_EVENT_PAYLOAD *)_pstEvent->pstPayload;
+
+      // Gets both objects
+      poSender    = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
+      poRecipient = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hRecipient));
+
+      // Is sender valid?
+      if(poSender)
       {
-        orxPHYSICS_EVENT_PAYLOAD *pstPayload;
-        ScrollObject             *poSender, *poRecipient;
-        orxBOOL                   bContinue = orxTRUE;
+        orxVECTOR vNormal;
 
-        // Gets payload
-        pstPayload = (orxPHYSICS_EVENT_PAYLOAD *)_pstEvent->pstPayload;
+        // Gets reverse normal
+        orxVector_Neg(&vNormal, &pstPayload->vNormal);
 
-        // Gets both objects
-        poSender    = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
-        poRecipient = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hRecipient));
-
-        // Is sender valid?
-        if(poSender)
+        // New collision?
+        if(_pstEvent->eID == orxPHYSICS_EVENT_CONTACT_ADD)
         {
-          orxVECTOR vNormal;
-
-          // Gets reverse normal
-          orxVector_Neg(&vNormal, &pstPayload->vNormal);
-
-          // New collision?
-          if(_pstEvent->eID == orxPHYSICS_EVENT_CONTACT_ADD)
-          {
-            // Calls its callback
-            bContinue = poSender->OnCollide(poRecipient, pstPayload->zSenderPartName, pstPayload->zRecipientPartName, pstPayload->vPosition, vNormal);
-          }
-          else
-          {
-            // Calls its callback
-            bContinue = poSender->OnSeparate(poRecipient);
-          }
+          // Calls its callback
+          poSender->OnCollide(poRecipient, pstPayload->pstSenderPart, pstPayload->pstRecipientPart, pstPayload->vPosition, vNormal);
         }
-
-        // Is recipient valid?
-        if(bContinue && poRecipient)
+        else
         {
-          // New collision?
-          if(_pstEvent->eID == orxPHYSICS_EVENT_CONTACT_ADD)
-          {
-            // Calls its callback
-            poRecipient->OnCollide(poSender, pstPayload->zRecipientPartName, pstPayload->zSenderPartName, pstPayload->vPosition, pstPayload->vNormal);
-          }
-          else
-          {
-            // Calls its callback
-            poRecipient->OnSeparate(poSender);
-          }
+          // Calls its callback
+          poSender->OnSeparate(poRecipient, pstPayload->pstSenderPart, pstPayload->pstRecipientPart);
         }
       }
 
+      // Is recipient valid?
+      if(poRecipient)
+      {
+        // New collision?
+        if(_pstEvent->eID == orxPHYSICS_EVENT_CONTACT_ADD)
+        {
+          // Calls its callback
+          poRecipient->OnCollide(poSender, pstPayload->pstRecipientPart, pstPayload->pstSenderPart, pstPayload->vPosition, pstPayload->vNormal);
+        }
+        else
+        {
+          // Calls its callback
+          poRecipient->OnSeparate(poSender, pstPayload->pstRecipientPart, pstPayload->pstSenderPart);
+        }
+      }
       break;
     }
 
     // Anim event
     case orxEVENT_TYPE_ANIM:
     {
-      // Anim update?
-      if(_pstEvent->eID == orxANIM_EVENT_UPDATE)
+      ScrollObject *poSender;
+
+      // Gets sender object
+      poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
+
+      // Valid?
+      if(poSender)
       {
-        ScrollObject *poSender;
+        orxANIM_EVENT_PAYLOAD *pstPayload;
 
-        // Gets sender object
-        poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
+        // Gets payload
+        pstPayload = (orxANIM_EVENT_PAYLOAD *)_pstEvent->pstPayload;
 
-        // Valid?
-        if(poSender)
+        // Depending on event ID
+        switch(_pstEvent->eID)
         {
-          orxANIM_EVENT_PAYLOAD *pstPayload;
-
-          // Gets payload
-          pstPayload = (orxANIM_EVENT_PAYLOAD *)_pstEvent->pstPayload;
-
-          // Calls object callback
-          poSender->OnAnimUpdate(pstPayload->zAnimName);
-        }
-      }
-      // Anim stop, cut or loop?
-      else if((_pstEvent->eID == orxANIM_EVENT_STOP) || (_pstEvent->eID == orxANIM_EVENT_CUT) || (_pstEvent->eID == orxANIM_EVENT_LOOP))
-      {
-        ScrollObject *poSender;
-
-        // Gets sender object
-        poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
-
-        // Valid?
-        if(poSender)
-        {
-          orxANIM_EVENT_PAYLOAD  *pstPayload;
-          orxANIMPOINTER         *pstAnimPointer;
-          const orxSTRING         zOldAnim;
-          const orxSTRING         zNewAnim = orxSTRING_EMPTY;
-          orxU32                  u32AnimID;
-
-          // Gets payload
-          pstPayload = (orxANIM_EVENT_PAYLOAD *)_pstEvent->pstPayload;
-
-          // Gets old anim
-          zOldAnim = pstPayload->zAnimName;
-
-          // Gets its anim pointer
-          pstAnimPointer = orxOBJECT_GET_STRUCTURE(poSender->GetOrxObject(), ANIMPOINTER);
-
-          // Gets current anim
-          u32AnimID = orxAnimPointer_GetCurrentAnim(pstAnimPointer);
-
-          // Valid?
-          if(u32AnimID != orxU32_UNDEFINED)
+          // Update
+          case orxANIM_EVENT_UPDATE:
           {
-            orxANIM *pstAnim;
-
-            // Gets new anim
-            pstAnim = orxAnimSet_GetAnim(orxAnimPointer_GetAnimSet(pstAnimPointer), u32AnimID);
-
-            // Valid?
-            if(pstAnim)
-            {
-              // Gets its name
-              zNewAnim = orxAnim_GetName(pstAnim);
-            }
+            // Calls object callback
+            poSender->OnAnimUpdate(pstPayload->zAnimName);
+            break;
           }
 
-          // Calls object callback
-          poSender->OnNewAnim(zOldAnim, zNewAnim, (_pstEvent->eID == orxANIM_EVENT_CUT) ? orxTRUE : orxFALSE);
+          // Custom event
+          case orxANIM_EVENT_CUSTOM_EVENT:
+          {
+            // Calls object callback
+            poSender->OnAnimEvent(pstPayload->zAnimName, pstPayload->stCustom.zName, pstPayload->stCustom.fTime, pstPayload->stCustom.fValue);
+            break;
+          }
+
+          // Stop, cut or loop
+          case orxANIM_EVENT_STOP:
+          case orxANIM_EVENT_CUT:
+          case orxANIM_EVENT_LOOP:
+          {
+            orxANIMPOINTER *pstAnimPointer;
+            const orxSTRING zOldAnim;
+            const orxSTRING zNewAnim = orxSTRING_EMPTY;
+            orxU32          u32AnimID;
+
+            // Gets old anim
+            zOldAnim = pstPayload->zAnimName;
+
+            // Gets its anim pointer
+            pstAnimPointer = orxOBJECT_GET_STRUCTURE(poSender->GetOrxObject(), ANIMPOINTER);
+
+            // Gets current anim
+            u32AnimID = orxAnimPointer_GetCurrentAnim(pstAnimPointer);
+
+            // Valid?
+            if(u32AnimID != orxU32_UNDEFINED)
+            {
+              orxANIM *pstAnim;
+
+              // Gets new anim
+              pstAnim = orxAnimSet_GetAnim(orxAnimPointer_GetAnimSet(pstAnimPointer), u32AnimID);
+
+              // Valid?
+              if(pstAnim)
+              {
+                // Gets its name
+                zNewAnim = orxAnim_GetName(pstAnim);
+              }
+            }
+
+            // Calls object callback
+            poSender->OnNewAnim(zOldAnim, zNewAnim, (_pstEvent->eID == orxANIM_EVENT_CUT) ? orxTRUE : orxFALSE);
+            break;
+          }
+
+          default:
+          {
+            // Should not happen
+            orxASSERT(orxFALSE);
+            break;
+          }
         }
       }
-      // Anim custom event?
-      else if(_pstEvent->eID == orxANIM_EVENT_CUSTOM_EVENT)
+      break;
+    }
+
+    // FX event
+    case orxEVENT_TYPE_FX:
+    {
+      ScrollObject *poSender;
+
+      // Gets sender object
+      poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
+
+      // Valid?
+      if(poSender)
       {
-        ScrollObject *poSender;
+        orxFX_EVENT_PAYLOAD *pstPayload;
 
-        // Gets sender object
-        poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
+        // Gets payload
+        pstPayload = (orxFX_EVENT_PAYLOAD *)_pstEvent->pstPayload;
 
-        // Valid?
-        if(poSender)
+        // Depending on event ID
+        switch(_pstEvent->eID)
         {
-          orxANIM_EVENT_PAYLOAD *pstPayload;
+          // Start
+          case orxFX_EVENT_START:
+          {
+            // Calls object callback
+            poSender->OnFXStart(pstPayload->zFXName, pstPayload->pstFX);
+            break;
+          }
 
-          // Gets payload
-          pstPayload = (orxANIM_EVENT_PAYLOAD *)_pstEvent->pstPayload;
+          // Stop
+          case orxFX_EVENT_STOP:
+          {
+            // Calls object callback
+            poSender->OnFXStop(pstPayload->zFXName, pstPayload->pstFX);
+            break;
+          }
 
-          // Calls object callback
-          poSender->OnAnimEvent(pstPayload->zAnimName, pstPayload->stCustom.zName, pstPayload->stCustom.fTime, pstPayload->stCustom.fValue);
+          // Loop
+          case orxFX_EVENT_LOOP:
+          {
+            // Calls object callback
+            poSender->OnFXLoop(pstPayload->zFXName, pstPayload->pstFX);
+            break;
+          }
+
+          default:
+          {
+            // Should not happen
+            orxASSERT(orxFALSE);
+            break;
+          }
         }
       }
 
@@ -1776,49 +1815,41 @@ orxSTATUS orxFASTCALL ScrollBase::StaticEventHandler(const orxEVENT *_pstEvent)
     // Render event
     case orxEVENT_TYPE_RENDER:
     {
-      // Object render start?
-      if(_pstEvent->eID == orxRENDER_EVENT_OBJECT_START)
+      ScrollObject *poSender;
+
+      // Gets sender object
+      poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
+
+      // Valid?
+      if(poSender)
       {
-        ScrollObject *poSender;
-
-        // Gets sender object
-        poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
-
-        // Valid?
-        if(poSender)
-        {
-          // Calls object callback
-          eResult = poSender->OnRender(*(orxRENDER_EVENT_PAYLOAD *)_pstEvent->pstPayload) ? orxSTATUS_SUCCESS : orxSTATUS_FAILURE;
-        }
+        // Calls object callback
+        eResult = poSender->OnRender(*(orxRENDER_EVENT_PAYLOAD *)_pstEvent->pstPayload) ? orxSTATUS_SUCCESS : orxSTATUS_FAILURE;
       }
-
       break;
     }
 
     // Shader event
     case orxEVENT_TYPE_SHADER:
     {
-      // Object render start?
-      if(_pstEvent->eID == orxSHADER_EVENT_SET_PARAM)
+      ScrollObject *poSender;
+
+      // Gets sender object
+      poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
+
+      // Valid?
+      if(poSender)
       {
-        ScrollObject *poSender;
-
-        // Gets sender object
-        poSender = (ScrollObject *)orxObject_GetUserData(orxOBJECT(_pstEvent->hSender));
-
-        // Valid?
-        if(poSender)
-        {
-          // Calls object callback
-          eResult = poSender->OnShader(*(orxSHADER_EVENT_PAYLOAD *)_pstEvent->pstPayload) ? orxSTATUS_SUCCESS : orxSTATUS_FAILURE;
-        }
+        // Calls object callback
+        eResult = poSender->OnShader(*(orxSHADER_EVENT_PAYLOAD *)_pstEvent->pstPayload) ? orxSTATUS_SUCCESS : orxSTATUS_FAILURE;
       }
-
       break;
     }
 
     default:
     {
+      // Should not happen
+      orxASSERT(orxFALSE);
       break;
     }
   }
@@ -1849,18 +1880,6 @@ orxHASHTABLE *          ScrollObjectBinderBase::spstTable         = orxNULL;
 
 
 //! Code
-inline void *operator new(size_t _Size, orxBANK *_pstBank)
-{
-  // Done!
-  return orxBank_Allocate(_pstBank);
-}
-
-inline void operator delete(void *_p, orxBANK *_pstBank)
-{
-  // Done!
-  orxBank_Free(_pstBank, _p);
-}
-
 orxHASHTABLE *ScrollObjectBinderBase::GetTable()
 {
   if(!spstTable)
@@ -2027,7 +2046,7 @@ ScrollObject *ScrollObjectBinderBase::CreateObject(orxOBJECT *_pstOrxObject, con
     orxObject_SetUserData(_pstOrxObject, poResult);
 
     // Stores its name
-    poResult->macName[orxString_NPrint(poResult->macName, sizeof(poResult->macName) - 1, "%s", _zInstanceName)] = orxCHAR_NULL;
+    orxString_NPrint(poResult->macName, sizeof(poResult->macName), "%s", _zInstanceName);
 
     // Inits flags
     xFlags = _xFlags;
@@ -2172,6 +2191,12 @@ void ScrollObjectBinderBase::DeleteObject(ScrollObject *_poObject, const orxSTRI
     orxConfig_ClearSection(zName);
     orxASSERT(!orxConfig_HasSection(zName));
   }
+
+  // Removes object as user data
+  orxObject_SetUserData(_poObject->mpstObject, orxNULL);
+
+  // Clears internal reference
+  _poObject->SetOrxObject(orxNULL);
 
   // Savable or runtime?
   if(_poObject->TestFlags(ScrollObject::FlagSave | ScrollObject::FlagRunTime))

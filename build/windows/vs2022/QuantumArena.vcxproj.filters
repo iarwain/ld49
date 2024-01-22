@@ -1,40 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
-      <UniqueIdentifier>{63364E96-26C1-A64F-9C33-2B3B62F5D9DF}</UniqueIdentifier>
+      <UniqueIdentifier>{441AFA74-57E0-3749-BCAD-55D9DF57FBB6}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
-      <UniqueIdentifier>{1C9E979B-D60F-1B41-A045-6CDE0BA908F6}</UniqueIdentifier>
+      <UniqueIdentifier>{43123BAB-9A62-7F40-8C6C-DB2511DC5D45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\extensions">
+      <UniqueIdentifier>{8AE91AB4-4C79-F748-9BD8-1322BDC9D81B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\extensions\lz4">
+      <UniqueIdentifier>{CA8156B4-6113-1446-AF04-8591C00203D1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\extensions\Scroll">
+      <UniqueIdentifier>{8051C774-2AE2-1744-9EAB-5B377DAE9728}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\lz4">
+      <UniqueIdentifier>{92051A85-83DC-454E-905C-EE959689E74C}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\Scroll">
-      <UniqueIdentifier>{5596ADAD-94AB-5E43-8B26-16FD187885B0}</UniqueIdentifier>
+      <UniqueIdentifier>{94596B46-A1E5-C041-B6AE-E2F2FB5926F4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="inline">
-      <UniqueIdentifier>{DA4BF0EA-87E9-FE4D-BD2C-55D67608FB6B}</UniqueIdentifier>
+    <Filter Include="build">
+      <UniqueIdentifier>{D847D786-3D44-D341-9052-17E8A51359A8}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{8ABC621A-B612-0F40-AC4A-0F91F1E5A405}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="data">
-      <UniqueIdentifier>{31F88D0A-0D29-A948-9795-CEC9D40B6657}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="data\resource">
-      <UniqueIdentifier>{7AE4CEBB-58BB-F94F-86C2-16A226A021CE}</UniqueIdentifier>
+      <UniqueIdentifier>{F6ACC290-1298-414F-AEA5-4DC8D8A3738B}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\include\Scroll\Scroll.inl">
-      <Filter>inline</Filter>
-    </None>
-    <None Include="..\..\..\include\Scroll\ScrollBase.inl">
-      <Filter>inline</Filter>
-    </None>
-    <None Include="..\..\..\include\Scroll\ScrollEd.inl">
-      <Filter>inline</Filter>
-    </None>
-    <None Include="..\..\..\include\Scroll\ScrollObject.inl">
-      <Filter>inline</Filter>
+    <None Include="..\..\premake4.lua">
+      <Filter>build</Filter>
     </None>
     <None Include="..\..\..\data\config\arena.ini">
       <Filter>config</Filter>
@@ -45,7 +42,7 @@
     <None Include="..\..\..\data\config\CreationTemplate.ini">
       <Filter>config</Filter>
     </None>
-    <None Include="..\..\..\data\config\dev.ini">
+    <None Include="..\..\..\data\config\ExtensionTemplate.ini">
       <Filter>config</Filter>
     </None>
     <None Include="..\..\..\data\config\font.ini">
@@ -54,16 +51,16 @@
     <None Include="..\..\..\data\config\gameover.ini">
       <Filter>config</Filter>
     </None>
-    <None Include="..\..\..\data\config\ld49.ini">
-      <Filter>config</Filter>
-    </None>
-    <None Include="..\..\..\data\config\ld49d.ini">
-      <Filter>config</Filter>
-    </None>
-    <None Include="..\..\..\data\config\ld49p.ini">
-      <Filter>config</Filter>
-    </None>
     <None Include="..\..\..\data\config\player.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\QuantumArena.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\QuantumArenad.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\QuantumArenap.ini">
       <Filter>config</Filter>
     </None>
     <None Include="..\..\..\data\config\select.ini">
@@ -92,11 +89,38 @@
     <ClInclude Include="..\..\..\include\Object.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\orxArchive.h">
+    <ClInclude Include="..\..\..\include\orxBundle.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Player.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\orxBundle.h">
+      <Filter>include\extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\orxExtensions.h">
+      <Filter>include\extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\lz4\lz4.h">
+      <Filter>include\extensions\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\lz4\lz4hc.h">
+      <Filter>include\extensions\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\Scroll\Scroll.h">
+      <Filter>include\extensions\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\Scroll\ScrollBase.h">
+      <Filter>include\extensions\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\Scroll\ScrollObject.h">
+      <Filter>include\extensions\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lz4\lz4.h">
+      <Filter>include\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lz4\lz4hc.h">
+      <Filter>include\lz4</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Scroll\Scroll.h">
       <Filter>include\Scroll</Filter>
@@ -127,10 +151,5 @@
     <ClCompile Include="..\..\..\src\Player.cpp">
       <Filter>src</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\..\..\data\resource\ld49.rc">
-      <Filter>data\resource</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

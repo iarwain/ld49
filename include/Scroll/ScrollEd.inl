@@ -1,6 +1,6 @@
 /* Scroll
  *
- * Copyright (c) 2008-2021 Orx-Project
+ * Copyright (c) 2008- Orx-Project
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -1311,8 +1311,7 @@ orxSTATUS ScrollEd::SaveMapBackup() const
   zMapName = orxString_Duplicate(roGame.GetMapName());
 
   // Sets backup name
-  orxString_NPrint(acBuffer, 256, "%s-%d.bak", zMapName, orxSystem_GetRealTime());
-  acBuffer[255] = orxCHAR_NULL;
+  orxString_NPrint(acBuffer, sizeof(acBuffer), "%s-%d.bak", zMapName, orxSystem_GetRealTime());
   roGame.SetMapName(acBuffer);
 
   // Saves backup
@@ -2271,7 +2270,7 @@ void ScrollEd::UpdateLayerDisplay()
     orxConfig_PushSection(szConfigSectionEditor);
 
     // Updates layer text
-    orxString_NPrint(acBuffer, 64, orxConfig_GetString(szConfigLayerTextFormat), mu32LayerIndex - (roGame.GetLayerNumber() >> 1));
+    orxString_NPrint(acBuffer, sizeof(acBuffer), orxConfig_GetString(szConfigLayerTextFormat), mu32LayerIndex - (roGame.GetLayerNumber() >> 1));
 
     // Updates its content
     orxObject_SetTextString(mpstLayerText, acBuffer);
@@ -2795,13 +2794,12 @@ void ScrollEd::DisplayObjectName(const ScrollObject *_poObject, orxBOOL _bDispla
       // Updates its content
       if(_bDisplayInstanceName)
       {
-        orxString_NPrint(acBuffer, 256, "%s(%s)", _poObject->GetName(), _poObject->GetModelName());
+        orxString_NPrint(acBuffer, sizeof(acBuffer), "%s(%s)", _poObject->GetName(), _poObject->GetModelName());
       }
       else
       {
-        orxString_NPrint(acBuffer, 256, "%s", _poObject->GetModelName());
+        orxString_NPrint(acBuffer, sizeof(acBuffer), "%s", _poObject->GetModelName());
       }
-      acBuffer[255] = orxCHAR_NULL;
       orxObject_SetTextString(mpstNameText, acBuffer);
     }
   }
