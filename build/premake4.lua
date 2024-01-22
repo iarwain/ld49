@@ -11,7 +11,8 @@ function initconfigurations ()
     {
         "Debug",
         "Profile",
-        "Release"
+        "Release",
+        "Bundle"
     }
 end
 
@@ -45,7 +46,7 @@ function defaultaction (name, action)
    end
 end
 
-defaultaction ("windows", "vs2019")
+defaultaction ("windows", "vs2022")
 defaultaction ("linux", "gmake")
 defaultaction ("macosx", "gmake")
 
@@ -130,6 +131,10 @@ solution "ld49"
         links {"orxp"}
 
     configuration {"*Release*"}
+        flags {"Optimize", "NoRTTI"}
+        links {"orx"}
+
+    configuration {"*Bundle*"}
         flags {"Optimize", "NoRTTI"}
         links {"orx"}
 
@@ -266,6 +271,9 @@ project "QuantumArena"
         ["inline"] = {"**.inl"},
         ["config"] = {"**.ini"}
     }
+
+    configuration {"*Bundle*"}
+        debugargs {"-b", "QuantumArena.obr"}
 
 
 -- Linux

@@ -12,9 +12,9 @@
 #include "Object.h"
 #include "Player.h"
 
-#define orxARCHIVE_IMPL
-#include "orxArchive.h"
-#undef orxARCHIVE_IMPL
+#define orxBUNDLE_IMPL
+#include "orxBundle.h"
+#undef orxBUNDLE_IMPL
 
 #ifdef __orxMSVC__
 
@@ -87,6 +87,9 @@ orxSTATUS ld49::Run()
 void ld49::Exit()
 {
     // Let Orx clean all our mess automatically. :)
+
+    // Exit from bundle support
+    orxBundle_Exit();
 }
 
 /** BindObjects function, ScrollObject-derived classes are bound to config sections here
@@ -104,11 +107,12 @@ void ld49::BindObjects()
  */
 orxSTATUS ld49::Bootstrap() const
 {
-    // Initialize archive (ZIP) resource type
-    orxArchive_Init();
+    // Initialize bundle resource type
+    orxBundle_Init();
 
     // Add config storage to find the initial config file
-    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "game.dat:config", orxFALSE);
+    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, orxBUNDLE_KZ_RESOURCE_STORAGE, orxFALSE);
+    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, orxBUNDLE_KZ_RESOURCE_STORAGE "QuantumArena.obr", orxFALSE);
     orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "../data/config", orxFALSE);
 
     // Return orxSTATUS_FAILURE to prevent orx from loading the default config file
