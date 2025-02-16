@@ -42,9 +42,16 @@ orxU32 Arena::RegisterPlayer(Player &_roPlayer, orxS32 _s32X, orxS32 _s32Y)
     PushConfigSection();
 
     orxCHAR acBuffer[32];
-    const orxSTRING zBuffer = acBuffer;
     orxString_NPrint(acBuffer, sizeof(acBuffer) - 1, "0x%016llX", _roPlayer.GetGUID());
-    orxConfig_AppendListString("PlayerList", &zBuffer, 1);
+    if(orxConfig_IsInheritedValue("PlayerList"))
+    {
+        orxConfig_SetString("PlayerList", acBuffer);
+    }
+    else
+    {
+        const orxSTRING zBuffer = acBuffer;
+        orxConfig_AppendListString("PlayerList", &zBuffer, 1);
+    }
     u32Result = orxConfig_GetListCount("PlayerList");
     orxObject_SetParent(_roPlayer.GetOrxObject(), GetOrxObject());
     orxObject_SetOwner(_roPlayer.GetOrxObject(), GetOrxObject());
@@ -330,7 +337,7 @@ void Arena::Update(const orxCLOCK_INFO &_rstInfo)
                 {
                     orxCHAR acName[64];
                     bIsGameOver = orxTRUE;
-                    orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetModelName() : "NO ONE");
+                    orxString_NPrint(acName, sizeof(acName) - 1, "%s", poWinner ? poWinner->GetName() : "NO ONE");
                     orxConfig_SetString("Winner", acName);
                     orxString_UpperCase(acName);
                     orxConfig_SetString("WINNER", acName);

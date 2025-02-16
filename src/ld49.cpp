@@ -6,15 +6,12 @@
 #define __SCROLL_IMPL__
 #include "ld49.h"
 #undef __SCROLL_IMPL__
+#include "orxExtensions.h"
 
 #include "Arena.h"
 #include "Bullet.h"
 #include "Object.h"
 #include "Player.h"
-
-#define orxBUNDLE_IMPL
-#include "orxBundle.h"
-#undef orxBUNDLE_IMPL
 
 #ifdef __orxMSVC__
 
@@ -61,11 +58,20 @@ void ld49::Update(const orxCLOCK_INFO &_rstInfo)
  */
 orxSTATUS ld49::Init()
 {
+    // Init extensions
+    InitExtensions();
+    
     // Push game section
     orxConfig_PushSection("Game");
 
+    // Create all viewports
+    for(orxS32 i = 0, iCount = orxConfig_GetListCount("ViewportList"); i < iCount; i++)
+    {
+        orxViewport_CreateFromConfig(orxConfig_GetListString("ViewportList", i));
+    }
+
     // Disable main viewport
-    orxViewport_Enable(GetMainViewport(), orxFALSE);
+    orxViewport_Enable(orxViewport_Get("MainViewport"), orxFALSE);
 
     // Go to title
     CreateObject("Title");
@@ -88,8 +94,8 @@ void ld49::Exit()
 {
     // Let Orx clean all our mess automatically. :)
 
-    // Exit from bundle support
-    orxBundle_Exit();
+    // Exit from extensions
+    ExitExtensions();
 }
 
 /** BindObjects function, ScrollObject-derived classes are bound to config sections here
@@ -107,14 +113,9 @@ void ld49::BindObjects()
  */
 orxSTATUS ld49::Bootstrap() const
 {
-    // Initialize bundle resource type
-    orxBundle_Init();
-
-    // Add config storage to find the initial config file
-    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, orxBUNDLE_KZ_RESOURCE_STORAGE, orxFALSE);
-    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, orxBUNDLE_KZ_RESOURCE_STORAGE "QuantumArena.obr", orxFALSE);
-    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "../data/config", orxFALSE);
-
+    // Bootstrap extensions
+    BootstrapExtensions();
+    
     // Return orxSTATUS_FAILURE to prevent orx from loading the default config file
     return orxSTATUS_SUCCESS;
 }

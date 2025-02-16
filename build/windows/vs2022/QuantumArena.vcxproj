@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D41A4564-F3A5-F141-B071-9D3CD4F17927}</ProjectGuid>
+    <ProjectGuid>{E80A24AC-F627-A64F-A642-A7597EBD66EA}</ProjectGuid>
     <RootNamespace>QuantumArena</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
@@ -488,7 +488,6 @@
     <ClInclude Include="..\..\..\include\Bullet.h" />
     <ClInclude Include="..\..\..\include\ld49.h" />
     <ClInclude Include="..\..\..\include\Object.h" />
-    <ClInclude Include="..\..\..\include\orxBundle.h" />
     <ClInclude Include="..\..\..\include\Player.h" />
     <ClInclude Include="..\..\..\include\extensions\orxBundle.h" />
     <ClInclude Include="..\..\..\include\extensions\orxExtensions.h" />
@@ -497,12 +496,6 @@
     <ClInclude Include="..\..\..\include\extensions\Scroll\Scroll.h" />
     <ClInclude Include="..\..\..\include\extensions\Scroll\ScrollBase.h" />
     <ClInclude Include="..\..\..\include\extensions\Scroll\ScrollObject.h" />
-    <ClInclude Include="..\..\..\include\lz4\lz4.h" />
-    <ClInclude Include="..\..\..\include\lz4\lz4hc.h" />
-    <ClInclude Include="..\..\..\include\Scroll\Scroll.h" />
-    <ClInclude Include="..\..\..\include\Scroll\ScrollBase.h" />
-    <ClInclude Include="..\..\..\include\Scroll\ScrollEd.h" />
-    <ClInclude Include="..\..\..\include\Scroll\ScrollObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\Arena.cpp">

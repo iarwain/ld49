@@ -7,7 +7,7 @@
 #define __ld49_H__
 
 #define __NO_SCROLLED__
-#include "Scroll.h"
+#include "Scroll/Scroll.h"
 
 /** Game Class
  */
